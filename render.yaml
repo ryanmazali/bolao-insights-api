@@ -11,3 +11,5 @@ services:
         sync: false
       - key: ODDS_API_KEY
         sync: false
+      - key: FOOTBALL_DATA_API_KEY
+        sync: false

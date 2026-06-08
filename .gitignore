@@ -2,8 +2,21 @@ venv/
 __pycache__/
 *.pyc
 .env
+
+# dados brutos e processados não sobem (regenerados pelo scraper)
 data/raw/
 data/processed/
 *.csv
+
+# JSON ignorado por padrão, exceto arquivos de configuração do projeto
 *.json
-!requirements.txt
+!data/copa2026_groups.json
+!data/fifa_rankings.json
+!src/models/saved/feature_columns.json
+
+# modelos treinados sobem junto com o repo
+!src/models/saved/*.pkl
+
+# arquivos de exploração/teste não vão para prod
+src/scraping/sofascore_test.py
+src/scraping/football_data_explore.py
