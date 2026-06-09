@@ -4,6 +4,7 @@ import os
 import joblib
 import numpy as np
 import pandas as pd
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
@@ -63,14 +64,14 @@ def load_data(path: str = "data/processed/match_features.csv") -> tuple[pd.DataF
     return train, test
 
 
-def train_result_model(train: pd.DataFrame, test: pd.DataFrame) -> XGBClassifier:
-    """Classifica resultado: 0=away win | 1=draw | 2=home win"""
+def train_result_model(train: pd.DataFrame, test: pd.DataFrame) -> CalibratedClassifierCV:
+    """Classifica resultado: 0=away win | 1=draw | 2=home win — com Platt scaling."""
     X_train = train[FEATURE_COLS]
     y_train = train["result"]
     X_test  = test[FEATURE_COLS]
     y_test  = test["result"]
 
-    model = XGBClassifier(
+    xgb_params = dict(
         n_estimators=300,
         max_depth=4,
         learning_rate=0.05,
@@ -83,32 +84,39 @@ def train_result_model(train: pd.DataFrame, test: pd.DataFrame) -> XGBClassifier
         verbosity=0,
     )
 
-    # cross-validation no treino
+    # treina modelo base isolado só para log e feature importance
+    base_for_log = XGBClassifier(**xgb_params)
+    base_for_log.fit(X_train, y_train, eval_set=[(X_test, y_test)], verbose=False)
+    logloss_raw = log_loss(y_test, base_for_log.predict_proba(X_test))
+
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    cv_scores = cross_val_score(model, X_train, y_train, cv=cv, scoring="accuracy")
+    cv_scores = cross_val_score(base_for_log, X_train, y_train, cv=cv, scoring="accuracy")
     print(f"\n[resultado] CV accuracy: {cv_scores.mean():.3f} ± {cv_scores.std():.3f}")
+    print(f"[resultado] Log-loss SEM calibracao: {logloss_raw:.3f}")
 
-    model.fit(
-        X_train, y_train,
-        eval_set=[(X_test, y_test)],
-        verbose=False,
-    )
-
-    # avaliação no teste
-    y_pred      = model.predict(X_test)
-    y_prob      = model.predict_proba(X_test)
-    acc         = accuracy_score(y_test, y_pred)
-    logloss     = log_loss(y_test, y_prob)
-
-    print(f"[resultado] Teste accuracy: {acc:.3f} | log-loss: {logloss:.3f}")
-    print(classification_report(y_test, y_pred, target_names=["Away Win", "Draw", "Home Win"]))
-
-    # feature importance
-    fi = pd.Series(model.feature_importances_, index=FEATURE_COLS).sort_values(ascending=False)
+    fi = pd.Series(base_for_log.feature_importances_, index=FEATURE_COLS).sort_values(ascending=False)
     print("[resultado] Top 10 features:")
     print(fi.head(10).round(4).to_string())
 
-    return model
+    # Platt scaling via CV — treina 5 cópias do XGBoost e calibra sigmoid nos folds held-out
+    calibrated = CalibratedClassifierCV(
+        XGBClassifier(**xgb_params),
+        method="sigmoid",
+        cv=5,
+    )
+    calibrated.fit(X_train, y_train)
+
+    # avaliação no teste
+    y_pred  = calibrated.predict(X_test)
+    y_prob  = calibrated.predict_proba(X_test)
+    acc     = accuracy_score(y_test, y_pred)
+    logloss = log_loss(y_test, y_prob)
+
+    print(f"\n[resultado] Log-loss COM Platt scaling: {logloss:.3f}  (delta: {logloss - logloss_raw:+.3f})")
+    print(f"[resultado] Teste accuracy: {acc:.3f}")
+    print(classification_report(y_test, y_pred, target_names=["Away Win", "Draw", "Home Win"]))
+
+    return calibrated
 
 
 def train_goals_model(train: pd.DataFrame, test: pd.DataFrame) -> XGBRegressor:
@@ -151,7 +159,7 @@ def train_goals_model(train: pd.DataFrame, test: pd.DataFrame) -> XGBRegressor:
     return model
 
 
-def save_artifacts(result_model: XGBClassifier, goals_model: XGBRegressor) -> None:
+def save_artifacts(result_model: CalibratedClassifierCV, goals_model: XGBRegressor) -> None:
     os.makedirs(SAVE_DIR, exist_ok=True)
     joblib.dump(result_model, f"{SAVE_DIR}/result_model.pkl")
     joblib.dump(goals_model,  f"{SAVE_DIR}/goals_model.pkl")
