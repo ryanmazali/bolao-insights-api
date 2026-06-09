@@ -18,6 +18,7 @@ data/processed/*
 *.json
 !data/copa2026_groups.json
 !data/fifa_rankings.json
+!data/team_name_mapping.json
 !src/models/saved/feature_columns.json
 
 # modelos treinados sobem junto com o repo

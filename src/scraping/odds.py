@@ -1,7 +1,19 @@
+import json
 import os
+from pathlib import Path
+
 import requests
 
 BASE_URL = "https://api.the-odds-api.com/v4"
+
+_MAPPING_PATH = Path(__file__).parent.parent.parent / "data" / "team_name_mapping.json"
+with open(_MAPPING_PATH, encoding="utf-8") as _f:
+    _TEAM_NAME_MAPPING: dict[str, str] = json.load(_f)
+
+
+def normalize_team_name(name: str) -> str:
+    """Normaliza nome do time para o padrão StatsBomb."""
+    return _TEAM_NAME_MAPPING.get(name, name)
 
 
 def get_world_cup_odds() -> list:
@@ -31,8 +43,8 @@ def parse_odds(raw_odds: list) -> list:
     parsed = []
 
     for game in raw_odds:
-        home_team = game.get("home_team")
-        away_team = game.get("away_team")
+        home_team = normalize_team_name(game.get("home_team"))
+        away_team = normalize_team_name(game.get("away_team"))
         commence_time = game.get("commence_time")
 
         result = {
@@ -49,9 +61,12 @@ def parse_odds(raw_odds: list) -> list:
 
                 if market["key"] == "h2h" and result["h2h"] is None:
                     outcomes = {o["name"]: o["price"] for o in market["outcomes"]}
+                    # outcomes usa nomes originais da API, mas nossos campos usam nomes normalizados
+                    raw_home = game.get("home_team")
+                    raw_away = game.get("away_team")
                     result["h2h"] = {
-                        "home_win": outcomes.get(home_team),
-                        "away_win": outcomes.get(away_team),
+                        "home_win": outcomes.get(raw_home),
+                        "away_win": outcomes.get(raw_away),
                         "draw": outcomes.get("Draw"),
                         "bookmaker": bookmaker["title"],
                     }
@@ -79,7 +94,7 @@ def calculate_value_bets(parsed_odds: list, predictions: dict) -> list:
     value_bets = []
 
     for game in parsed_odds:
-        home = game["home_team"]
+        home = game["home_team"]  # já normalizado pelo parse_odds
         away = game["away_team"]
 
         pred_key = f"{home}_vs_{away}"
