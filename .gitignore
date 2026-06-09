@@ -3,10 +3,16 @@ __pycache__/
 *.pyc
 .env
 
-# dados brutos e processados não sobem (regenerados pelo scraper)
+# dados brutos não sobem (regenerados pelo scraper)
 data/raw/
-data/processed/
+
+# ignora conteúdo de processed, exceto o que a API precisa em produção
+data/processed/*
+!data/processed/team_features.csv
+
+# ignora CSVs soltos em outras pastas
 *.csv
+!data/processed/team_features.csv
 
 # JSON ignorado por padrão, exceto arquivos de configuração do projeto
 *.json
