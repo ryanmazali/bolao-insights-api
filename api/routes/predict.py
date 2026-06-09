@@ -9,6 +9,8 @@ import pandas as pd
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from src.scraping.odds import calculate_value_bets, get_world_cup_odds, parse_odds
+
 router = APIRouter(prefix="/predict", tags=["predict"])
 
 _BASE        = Path("src/models/saved")
@@ -380,4 +382,40 @@ def copa2026_groups() -> Any:
     return {
         "groups":           [r.model_dump() for r in results],
         "advancing_thirds": list(advancing_thirds),
+    }
+
+
+@router.get("/odds", summary="Odds atuais da Copa do Mundo 2026")
+async def get_odds() -> dict[str, Any]:
+    raw = get_world_cup_odds()
+    if not raw:
+        return {"error": "Sem odds disponíveis no momento", "games": []}
+    parsed = parse_odds(raw)
+    return {"games": parsed, "total": len(parsed)}
+
+
+@router.get("/value-bets", summary="Value bets: onde o modelo vê mais valor que o mercado")
+async def get_value_bets() -> dict[str, Any]:
+    raw = get_world_cup_odds()
+    if not raw:
+        return {"value_bets": [], "message": "Sem odds disponíveis"}
+
+    parsed = parse_odds(raw)
+
+    predictions: dict[str, Any] = {}
+    for game in parsed:
+        home = game["home_team"]
+        away = game["away_team"]
+        try:
+            predictions[f"{home}_vs_{away}"] = _predict_one(home, away)
+        except Exception:
+            continue
+
+    value_bets = calculate_value_bets(parsed, predictions)
+
+    return {
+        "value_bets": value_bets,
+        "total": len(value_bets),
+        "games_analyzed": len(parsed),
+        "threshold": "4% de valor mínimo",
     }
