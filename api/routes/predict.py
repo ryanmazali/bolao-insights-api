@@ -10,6 +10,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from src.models.predict import predict_match as predict_match_v2
+from src.models.predict_scorer import predict_scorers
 from src.scraping.odds import calculate_value_bets, get_world_cup_odds, parse_odds
 
 router = APIRouter(prefix="/predict", tags=["predict"])
@@ -409,4 +410,47 @@ async def get_value_bets() -> dict[str, Any]:
         "total": len(value_bets),
         "games_analyzed": len(parsed),
         "threshold": "4% de valor mínimo",
+    }
+
+
+@router.post("/scorers", summary="Top marcadores prováveis para cada time")
+async def get_scorers(request: dict) -> dict[str, Any]:
+    """
+    Retorna top marcadores prováveis para cada time.
+    Body: { "home_team": "Brazil", "away_team": "Morocco" }
+    """
+    home = request.get("home_team")
+    away = request.get("away_team")
+
+    if not home or not away:
+        raise HTTPException(status_code=400, detail="home_team e away_team obrigatórios")
+
+    # Buscar Elo atual dos times
+    try:
+        elo_df = pd.read_csv('data/raw/eloratings.csv')
+        elo_df['date'] = pd.to_datetime(elo_df['date'], format='mixed', dayfirst=False)
+        elo_df = elo_df.sort_values('date')
+
+        def get_latest_elo(team):
+            subset = elo_df[elo_df['team'] == team]
+            return float(subset.iloc[-1]['rating']) if len(subset) > 0 else 1500.0
+
+        home_elo = get_latest_elo(home)
+        away_elo = get_latest_elo(away)
+    except Exception:
+        home_elo = away_elo = 1600.0
+
+    scorers = predict_scorers(
+        home_team=home,
+        away_team=away,
+        home_elo=home_elo,
+        away_elo=away_elo,
+    )
+
+    return {
+        "home_team": home,
+        "away_team": away,
+        "home_elo": home_elo,
+        "away_elo": away_elo,
+        "top_scorers": scorers,
     }

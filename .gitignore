@@ -9,18 +9,22 @@ data/raw/*
 !data/raw/fifa_ranking-2023-07-20.csv
 !data/raw/fifa_ranking-2024-04-04.csv
 !data/raw/fifa_ranking-2024-06-20.csv
+!data/raw/eloratings.csv
 
 # ignora conteúdo de processed, exceto o que a API precisa em produção
 data/processed/*
 !data/processed/team_features.csv
+!data/processed/scorer_features_v1.csv
 
 # ignora CSVs soltos em outras pastas
 *.csv
 !data/processed/team_features.csv
+!data/processed/scorer_features_v1.csv
 !data/raw/results.csv
 !data/raw/fifa_ranking-2023-07-20.csv
 !data/raw/fifa_ranking-2024-04-04.csv
 !data/raw/fifa_ranking-2024-06-20.csv
+!data/raw/eloratings.csv
 
 # JSON ignorado por padrão, exceto arquivos de configuração do projeto
 *.json
@@ -29,6 +33,8 @@ data/processed/*
 !data/team_name_mapping.json
 !src/models/saved/feature_columns.json
 !src/models/saved/feature_columns_v2.json
+!src/models/saved/scorer_feature_columns_v1.json
+!src/models/saved/scorer_team_map.json
 
 # modelos treinados sobem junto com o repo
 !src/models/saved/*.pkl
