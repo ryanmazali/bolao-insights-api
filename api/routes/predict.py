@@ -9,6 +9,7 @@ import pandas as pd
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from src.models.predict import predict_match as predict_match_v2
 from src.scraping.odds import calculate_value_bets, get_world_cup_odds, parse_odds
 
 router = APIRouter(prefix="/predict", tags=["predict"])
@@ -120,6 +121,15 @@ class PredictResponse(BaseModel):
     most_likely_result: str
     home_team_stats:    dict[str, Any]
     away_team_stats:    dict[str, Any]
+
+
+class PredictResponseV2(BaseModel):
+    home_team:          str
+    away_team:          str
+    probabilities:      dict[str, float]
+    expected_goals:     GoalsBreakdown
+    markets:            dict[str, Any]
+    most_likely_result: str
 
 
 class BatchRequest(BaseModel):
@@ -295,39 +305,20 @@ def list_teams() -> dict[str, Any]:
     }
 
 
-@router.post("", response_model=PredictResponse, summary="Prediz uma partida")
-def predict(req: PredictRequest) -> PredictResponse:
+@router.post("", response_model=PredictResponseV2, summary="Prediz uma partida")
+def predict(req: PredictRequest) -> PredictResponseV2:
     if req.home_team == req.away_team:
         raise HTTPException(status_code=400, detail="home_team e away_team devem ser diferentes.")
 
-    home = _get_team(req.home_team)
-    away = _get_team(req.away_team)
-    X    = _build_feature_vector(home, away)
+    try:
+        result = predict_match_v2(req.home_team, req.away_team)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
-    probs      = _result_model.predict_proba(X)[0]
-    result_idx = int(np.argmax(probs))
-    labels     = ["away_win", "draw", "home_win"]
-
-    total_goals = float(max(0.0, _goals_model.predict(X)[0]))
-    xg_sum      = home["xg_for"] + away["xg_for"]
-    home_share  = home["xg_for"] / xg_sum if xg_sum > 0 else 0.5
-
-    return PredictResponse(
+    return PredictResponseV2(
         home_team=req.home_team,
         away_team=req.away_team,
-        probabilities={
-            "home_win": round(float(probs[2]), 4),
-            "draw":     round(float(probs[1]), 4),
-            "away_win": round(float(probs[0]), 4),
-        },
-        expected_goals=GoalsBreakdown(
-            total=round(total_goals, 2),
-            home=round(total_goals * home_share, 2),
-            away=round(total_goals * (1 - home_share), 2),
-        ),
-        most_likely_result=labels[result_idx],
-        home_team_stats=_team_summary(home),
-        away_team_stats=_team_summary(away),
+        **result,
     )
 
 
