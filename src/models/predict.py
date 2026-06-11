@@ -4,6 +4,7 @@ from pathlib import Path
 import numpy as np
 import joblib
 import pandas as pd
+from scipy.stats import poisson
 
 from src.features.build_features import (
     compute_h2h,
@@ -52,6 +53,21 @@ _rankings_df, _current_rankings = load_fifa_rankings()
 # Contexto padrão para previsões "ao vivo": Copa do Mundo, jogo em campo neutro
 _DEFAULT_TOURNAMENT = 'FIFA World Cup'
 _DEFAULT_IS_NEUTRAL = 1
+
+
+def prob_over_under(expected_goals: float) -> dict:
+    """
+    Calcula probabilidade de over/under 2.5 usando distribuição de Poisson.
+    Muito mais preciso que sigmoid para modelar gols discretos.
+    """
+    # P(under 2.5) = P(0 gols) + P(1 gol) + P(2 gols)
+    prob_under = sum(poisson.pmf(k, expected_goals) for k in range(3))
+    prob_over = 1 - prob_under
+
+    return {
+        "over": round(float(prob_over), 3),
+        "under": round(float(prob_under), 3),
+    }
 
 
 def _build_feature_row(home_team: str, away_team: str, before_date: pd.Timestamp) -> dict:
@@ -157,8 +173,9 @@ def predict_match(home_team: str, away_team: str) -> dict:
     double_chance_12 = home_win + away_win
 
     # Over/under
-    over_25 = 1 / (1 + np.exp(-2 * (total_goals - 2.5)))  # sigmoid suavizado
-    under_25 = 1 - over_25
+    ou = prob_over_under(total_goals)
+    over_25 = ou["over"]
+    under_25 = ou["under"]
 
     return {
         "probabilities": {
