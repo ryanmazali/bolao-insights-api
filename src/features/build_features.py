@@ -91,7 +91,7 @@ def load_results() -> pd.DataFrame:
     df['sample_weight'] = df['tournament_weight'] * df['recency_weight']
 
     print(f"[Data] Partidas carregadas: {len(df)}")
-    print(f"[Data] Período: {df['date'].min().date()} → {df['date'].max().date()}")
+    print(f"[Data] Período: {df['date'].min().date()} -> {df['date'].max().date()}")
     print(f"[Data] Torneios únicos: {df['tournament'].nunique()}")
 
     return df.sort_values('date').reset_index(drop=True)
