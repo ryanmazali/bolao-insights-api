@@ -399,7 +399,7 @@ async def get_value_bets() -> dict[str, Any]:
         home = game["home_team"]
         away = game["away_team"]
         try:
-            predictions[f"{home}_vs_{away}"] = _predict_one(home, away)
+            predictions[f"{home}_vs_{away}"] = predict_match_v2(home, away)
         except Exception:
             continue
 

@@ -53,6 +53,7 @@ def parse_odds(raw_odds: list) -> list:
             "commence_time": commence_time,
             "h2h": None,
             "totals": None,
+            "btts": None,
             "bookmakers_count": len(game.get("bookmakers", [])),
         }
 
@@ -80,6 +81,15 @@ def parse_odds(raw_odds: list) -> list:
                     if result["totals"]:
                         result["totals"]["bookmaker"] = bookmaker["title"]
 
+                if market["key"] == "btts" and result["btts"] is None:
+                    outcomes = {o["name"]: o["price"] for o in market["outcomes"]}
+                    if "Yes" in outcomes or "No" in outcomes:
+                        result["btts"] = {
+                            "yes": outcomes.get("Yes"),
+                            "no": outcomes.get("No"),
+                            "bookmaker": bookmaker["title"],
+                        }
+
         parsed.append(result)
 
     return parsed
@@ -103,49 +113,87 @@ def calculate_value_bets(parsed_odds: list, predictions: dict) -> list:
 
         pred = predictions[pred_key]
         h2h = game.get("h2h")
+        totals = game.get("totals")
+        btts_odds = game.get("btts")
+        markets = pred.get("markets", {})
 
-        if not h2h:
-            continue
+        # ── 1X2 ──────────────────────────────────────────────────────
+        if h2h:
+            for outcome, label, model_prob, odd in [
+                ("home_win", f"{home} vence", pred["probabilities"]["home_win"], h2h.get("home_win")),
+                ("draw",     "Empate",         pred["probabilities"]["draw"],     h2h.get("draw")),
+                ("away_win", f"{away} vence",  pred["probabilities"]["away_win"], h2h.get("away_win")),
+            ]:
+                if not odd:
+                    continue
 
-        candidates = [
-            {
-                "outcome": "home_win",
-                "label": f"{home} vence",
-                "model_prob": pred["probabilities"]["home_win"],
-                "odd": h2h.get("home_win"),
-            },
-            {
-                "outcome": "draw",
-                "label": "Empate",
-                "model_prob": pred["probabilities"]["draw"],
-                "odd": h2h.get("draw"),
-            },
-            {
-                "outcome": "away_win",
-                "label": f"{away} vence",
-                "model_prob": pred["probabilities"]["away_win"],
-                "odd": h2h.get("away_win"),
-            },
-        ]
+                implied = 1 / odd
+                value = model_prob - implied
 
-        for c in candidates:
-            if not c["odd"]:
-                continue
+                if value > 0.04:
+                    value_bets.append({
+                        "match": f"{home} vs {away}",
+                        "market": "1X2",
+                        "outcome": label,
+                        "model_prob_pct": round(model_prob * 100, 1),
+                        "implied_prob_pct": round(implied * 100, 1),
+                        "odd": odd,
+                        "value_pct": round(value * 100, 1),
+                        "value_rating": "alto" if value > 0.10 else "medio",
+                        "bookmaker": h2h.get("bookmaker"),
+                    })
 
-            implied_prob = 1 / c["odd"]
-            value = c["model_prob"] - implied_prob
+        # ── Over/Under 2.5 ───────────────────────────────────────────
+        if totals and markets.get("over_under_25"):
+            ou = markets["over_under_25"]
+            for side, label, model_prob, odd in [
+                ("over",  "Over 2.5",  ou["over"],  totals.get("over")),
+                ("under", "Under 2.5", ou["under"], totals.get("under")),
+            ]:
+                if not odd:
+                    continue
 
-            if value > 0.04:
-                value_bets.append({
-                    "match": f"{home} vs {away}",
-                    "outcome": c["label"],
-                    "model_prob_pct": round(c["model_prob"] * 100, 1),
-                    "implied_prob_pct": round(implied_prob * 100, 1),
-                    "odd": c["odd"],
-                    "value_pct": round(value * 100, 1),
-                    "value_rating": "alto" if value > 0.10 else "medio",
-                    "bookmaker": h2h.get("bookmaker"),
-                })
+                implied = 1 / odd
+                value = model_prob - implied
+
+                if value > 0.04:
+                    value_bets.append({
+                        "match": f"{home} vs {away}",
+                        "market": "Over/Under 2.5",
+                        "outcome": label,
+                        "model_prob_pct": round(model_prob * 100, 1),
+                        "implied_prob_pct": round(implied * 100, 1),
+                        "odd": odd,
+                        "value_pct": round(value * 100, 1),
+                        "value_rating": "alto" if value > 0.10 else "medio",
+                        "bookmaker": totals.get("bookmaker"),
+                    })
+
+        # ── BTTS (ambas marcam) ──────────────────────────────────────
+        if btts_odds and markets.get("btts"):
+            btts = markets["btts"]
+            for side, label, model_prob, odd in [
+                ("yes", "Ambas marcam - Sim", btts["yes"], btts_odds.get("yes")),
+                ("no",  "Ambas marcam - Não", btts["no"],  btts_odds.get("no")),
+            ]:
+                if not odd:
+                    continue
+
+                implied = 1 / odd
+                value = model_prob - implied
+
+                if value > 0.04:
+                    value_bets.append({
+                        "match": f"{home} vs {away}",
+                        "market": "BTTS",
+                        "outcome": label,
+                        "model_prob_pct": round(model_prob * 100, 1),
+                        "implied_prob_pct": round(implied * 100, 1),
+                        "odd": odd,
+                        "value_pct": round(value * 100, 1),
+                        "value_rating": "alto" if value > 0.10 else "medio",
+                        "bookmaker": btts_odds.get("bookmaker"),
+                    })
 
     value_bets.sort(key=lambda x: x["value_pct"], reverse=True)
     return value_bets
