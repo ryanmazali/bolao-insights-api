@@ -2,7 +2,7 @@ import os
 from datetime import datetime, timezone
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Header, HTTPException
 from supabase import create_client
 
 from src.models.predict import predict_match
@@ -16,6 +16,8 @@ supabase = create_client(
     os.getenv("SUPABASE_URL"),
     os.getenv("SUPABASE_SERVICE_KEY"),
 )
+
+ADMIN_SECRET = os.getenv("ADMIN_SECRET", "")
 
 # Mapeamento nomes em ingles (StatsBomb, usados por parse_odds/predict_match)
 # -> nomes em portugues da tabela teams no Supabase.
@@ -76,11 +78,14 @@ def to_supabase_name(team_en: str) -> str:
 
 
 @router.post("/update-odds")
-async def update_odds():
+async def update_odds(x_admin_secret: str = Header(None)):
     """
     Busca odds da The Odds API, calcula predições do modelo,
     calcula value bets e salva tudo no Supabase (tabela match_odds).
     """
+    if not ADMIN_SECRET or x_admin_secret != ADMIN_SECRET:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
     results = {
         "updated": 0,
         "inserted": 0,
