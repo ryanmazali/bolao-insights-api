@@ -16,13 +16,35 @@ from src.features.build_features import (
 
 _BASE = Path("src/models/saved")
 
-model_result = joblib.load(_BASE / "model_result_v2.pkl")
-model_goals  = joblib.load(_BASE / "model_goals_v2.pkl")
-model_btts   = joblib.load(_BASE / "model_btts_v2.pkl")
-le           = joblib.load(_BASE / "label_encoder_v2.pkl")
+_REQUIRED_FILES = [
+    "model_result_v2.pkl",
+    "model_goals_v2.pkl",
+    "model_btts_v2.pkl",
+    "label_encoder_v2.pkl",
+    "feature_columns_v2.json",
+]
 
-with open(_BASE / "feature_columns_v2.json") as f:
-    FEATURE_COLS = json.load(f)
+
+def load_models():
+    missing = [name for name in _REQUIRED_FILES if not (_BASE / name).exists()]
+    if missing:
+        raise RuntimeError(
+            f"Modelos v2 não encontrados em {_BASE}: {', '.join(missing)}. "
+            "Rode `python -m src.models.train_v2` para gerá-los."
+        )
+
+    model_result = joblib.load(_BASE / "model_result_v2.pkl")
+    model_goals = joblib.load(_BASE / "model_goals_v2.pkl")
+    model_btts = joblib.load(_BASE / "model_btts_v2.pkl")
+    le = joblib.load(_BASE / "label_encoder_v2.pkl")
+
+    with open(_BASE / "feature_columns_v2.json") as f:
+        feature_cols = json.load(f)
+
+    return model_result, model_goals, model_btts, le, feature_cols
+
+
+model_result, model_goals, model_btts, le, FEATURE_COLS = load_models()
 
 _df = load_results()
 _rankings_df, _current_rankings = load_fifa_rankings()
