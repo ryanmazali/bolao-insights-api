@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
+from api.routes.admin import router as admin_router
 from api.routes.predict import load_models, router as predict_router
 
 
@@ -29,6 +30,7 @@ app.add_middleware(
 )
 
 app.include_router(predict_router)
+app.include_router(admin_router)
 
 
 @app.get("/")
