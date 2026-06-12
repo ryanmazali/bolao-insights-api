@@ -33,6 +33,31 @@ MANUAL_MAPPING = {
     'Vini Jr.': 'Vinícius Júnior',
     'Emiliano Martínez': 'Emiliano Martínez',
     'Dibu Martínez': 'Emiliano Martínez',
+
+    # Diacríticos/hífens: nome no Supabase está sem acento/hífen, mas o CSV
+    # (data/processed/scorer_features_v1.csv) usa a grafia original.
+    'Hwang Heechan': 'Hwang Hee-chan',
+    'Lee Jaesung': 'Lee Jae-sung',
+    'Lee Kangin': 'Lee Kang-in',
+    'Son Heungmin': 'Son Heung-min',
+    'Edin Dzeko': 'Edin Džeko',
+    'AlMoez Ali': 'Almoez Ali',
+    'Ricardo Rodriguez': 'Ricardo Rodríguez',
+    'Hakan Calhanoglu': 'Hakan Çalhanoğlu',
+    'Arda Guler': 'Arda Güler',
+    'Kerem Akturkoglu': 'Kerem Aktürkoğlu',
+    'Ritsu Doan': 'Ritsu Dōan',
+    'Jeremy Doku': 'Jérémy Doku',
+    'Salem Al Dawsari': 'Salem Al-Dawsari',
+    'Saleh Al Shehri': 'Saleh Al-Shehri',
+    'Giorgian De Arrascaeta': 'Giorgian de Arrascaeta',
+    'Alexander Sorloth': 'Alexander Sørloth',
+    'Ismaila Sarr': 'Ismaïla Sarr',
+    'Luka Modric': 'Luka Modrić',
+    'Mario Pasalic': 'Mario Pašalić',
+    'Nikola Vlasic': 'Nikola Vlašić',
+    'Ivan Perisic': 'Ivan Perišić',
+    'Andrej Kramaric': 'Andrej Kramarić',
 }
 
 # Carregar features históricas dos jogadores
@@ -69,6 +94,8 @@ def get_convocados(team_name_en: str) -> list:
         'Switzerland': 'Suíça',
         'Mexico': 'México',
         'USA': 'Estados Unidos',
+        'United States': 'Estados Unidos',
+        'Panama': 'Panamá',
         'Ecuador': 'Equador',
         'Senegal': 'Senegal',
         'South Korea': 'Coreia do Sul',

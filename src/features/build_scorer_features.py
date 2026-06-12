@@ -1,9 +1,13 @@
+import sys
 import pandas as pd
 import numpy as np
 from datetime import datetime
 import os
 import warnings
 warnings.filterwarnings('ignore')
+
+if sys.stdout.encoding.lower() != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8')
 
 CUTOFF_DATE = '2015-01-01'
 REFERENCE_DATE = pd.Timestamp('2026-06-10')
@@ -44,13 +48,17 @@ def normalize_name(name: str) -> str:
 def get_elo_at_date(elo_df: pd.DataFrame,
                     team: str,
                     date: pd.Timestamp) -> float:
-    """Retorna Elo do time na data mais próxima anterior."""
-    mask = (elo_df['team'] == team) & (elo_df['date'] <= date)
+    """Retorna Elo do time na data mais próxima anterior.
+
+    Ignora linhas com rating ausente (ex.: Moldova em eloratings.csv tem
+    `rating` vazio em quase todo o histórico) para nunca retornar NaN.
+    """
+    mask = (elo_df['team'] == team) & (elo_df['date'] <= date) & elo_df['rating'].notna()
     subset = elo_df[mask]
     if len(subset) == 0:
         alias = ELO_NAME_ALIASES.get(team)
         if alias:
-            mask = (elo_df['team'] == alias) & (elo_df['date'] <= date)
+            mask = (elo_df['team'] == alias) & (elo_df['date'] <= date) & elo_df['rating'].notna()
             subset = elo_df[mask]
     if len(subset) == 0:
         return 1500.0  # default neutro
@@ -214,8 +222,12 @@ def compute_player_features(history: pd.DataFrame,
     # Taxa ajustada por nível do adversário (SOS)
     # Normalizar Elo do adversário para peso
     opp_elo_norm = (past['opp_elo'] - 1400) / 600  # ~0 a 1
-    sos_weights = w * (0.5 + opp_elo_norm * 0.5)
-    sos_scoring_rate = np.average(past['target'], weights=sos_weights) if sos_weights.sum() > 0 else scoring_rate
+    sos_weights = (w * (0.5 + opp_elo_norm * 0.5)).values
+    valid = ~np.isnan(sos_weights)
+    if valid.any() and sos_weights[valid].sum() > 0:
+        sos_scoring_rate = np.average(past['target'].values[valid], weights=sos_weights[valid])
+    else:
+        sos_scoring_rate = scoring_rate
 
     # Taxa por tier de adversário
     def tier_rate(tier):
