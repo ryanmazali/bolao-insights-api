@@ -27,6 +27,12 @@ POSITION_BASELINE = {
     'GK': 0.001,  # goleiro quase nunca
 }
 
+# Nomes que aparecem em results.csv/goalscorers.csv com grafia diferente em eloratings.csv
+ELO_NAME_ALIASES = {
+    'Czech Republic': 'Czechia',
+    'DR Congo': 'Democratic Republic of Congo',
+}
+
 def player_recency_weight(match_date: pd.Timestamp,
                            reference: pd.Timestamp) -> float:
     days_ago = (reference - match_date).days
@@ -41,6 +47,11 @@ def get_elo_at_date(elo_df: pd.DataFrame,
     """Retorna Elo do time na data mais próxima anterior."""
     mask = (elo_df['team'] == team) & (elo_df['date'] <= date)
     subset = elo_df[mask]
+    if len(subset) == 0:
+        alias = ELO_NAME_ALIASES.get(team)
+        if alias:
+            mask = (elo_df['team'] == alias) & (elo_df['date'] <= date)
+            subset = elo_df[mask]
     if len(subset) == 0:
         return 1500.0  # default neutro
     return subset.iloc[-1]['rating']

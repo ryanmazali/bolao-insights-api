@@ -32,6 +32,14 @@ _OFFENSIVE = {"xg_for", "goals_for", "shots", "sot", "passes", "pressures", "win
 # Colunas defensivas (mais alto = pior → escalar para cima em times fracos)
 _DEFENSIVE = {"xg_against", "goals_against", "opp_shots"}
 
+# Nomes da Copa 2026 que aparecem com grafia diferente em data/raw/eloratings.csv
+_ELO_NAME_ALIASES = {
+    "Czech Republic": "Czechia",
+    "Curacao": "Curaçao",
+    "Bosnia-Herzegovina": "Bosnia and Herzegovina",
+    "DR Congo": "Democratic Republic of Congo",
+}
+
 
 def load_models() -> None:
     global _result_model, _goals_model, _feature_cols, _team_features, _median_stats, _fifa_rankings
@@ -433,6 +441,10 @@ async def get_scorers(request: dict) -> dict[str, Any]:
 
         def get_latest_elo(team):
             subset = elo_df[elo_df['team'] == team]
+            if len(subset) == 0:
+                alias = _ELO_NAME_ALIASES.get(team)
+                if alias:
+                    subset = elo_df[elo_df['team'] == alias]
             return float(subset.iloc[-1]['rating']) if len(subset) > 0 else 1500.0
 
         home_elo = get_latest_elo(home)
