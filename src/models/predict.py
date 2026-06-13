@@ -9,9 +9,11 @@ from scipy.stats import poisson
 from src.features.build_features import (
     compute_h2h,
     compute_team_features,
+    get_team_fm23,
     get_tournament_weight,
     load_fifa_rankings,
     load_results,
+    load_team_fm23_features,
     normalize_name,
 )
 
@@ -49,6 +51,7 @@ model_result, model_goals, model_btts, le, FEATURE_COLS = load_models()
 
 _df = load_results()
 _rankings_df, _current_rankings = load_fifa_rankings()
+_fm23_lookup, _fm23_defaults, _fm23_former_to_current = load_team_fm23_features()
 
 # Contexto padrão para previsões "ao vivo": Copa do Mundo, jogo em campo neutro
 _DEFAULT_TOURNAMENT = 'FIFA World Cup'
@@ -84,6 +87,9 @@ def _build_feature_row(home_team: str, away_team: str, before_date: pd.Timestamp
 
     h2h = compute_h2h(_df, home, away, before_date)
 
+    home_fm23 = get_team_fm23(home, _fm23_lookup, _fm23_defaults, _fm23_former_to_current)
+    away_fm23 = get_team_fm23(away, _fm23_lookup, _fm23_defaults, _fm23_former_to_current)
+
     return {
         'home_fifa_points': home_f['fifa_points'],
         'home_goals_for': home_f['goals_for_avg'],
@@ -103,6 +109,11 @@ def _build_feature_row(home_team: str, away_team: str, before_date: pd.Timestamp
         'home_sos_goals_for': home_f['sos_goals_for'],
         'home_sos_goals_against': home_f['sos_goals_against'],
         'home_sos_form': home_f['sos_form_goals'],
+        'home_fm23_attack_strength': home_fm23['attack_strength'],
+        'home_fm23_defense_strength': home_fm23['defense_strength'],
+        'home_fm23_overall': home_fm23['overall'],
+        'home_fm23_gk_strength': home_fm23['gk_strength'],
+        'home_fm23_depth': home_fm23['depth'],
 
         'away_fifa_points': away_f['fifa_points'],
         'away_goals_for': away_f['goals_for_avg'],
@@ -122,6 +133,11 @@ def _build_feature_row(home_team: str, away_team: str, before_date: pd.Timestamp
         'away_sos_goals_for': away_f['sos_goals_for'],
         'away_sos_goals_against': away_f['sos_goals_against'],
         'away_sos_form': away_f['sos_form_goals'],
+        'away_fm23_attack_strength': away_fm23['attack_strength'],
+        'away_fm23_defense_strength': away_fm23['defense_strength'],
+        'away_fm23_overall': away_fm23['overall'],
+        'away_fm23_gk_strength': away_fm23['gk_strength'],
+        'away_fm23_depth': away_fm23['depth'],
 
         'diff_fifa_points': home_f['fifa_points'] - away_f['fifa_points'],
         'diff_goals_for': home_f['goals_for_avg'] - away_f['goals_for_avg'],
@@ -132,6 +148,9 @@ def _build_feature_row(home_team: str, away_team: str, before_date: pd.Timestamp
         'diff_sos_goals': home_f['sos_goals_for'] - away_f['sos_goals_for'],
         'diff_sos_form': home_f['sos_form_goals'] - away_f['sos_form_goals'],
         'diff_avg_opp': home_f['avg_opp_points'] - away_f['avg_opp_points'],
+        'fm23_attack_diff': home_fm23['attack_strength'] - away_fm23['attack_strength'],
+        'fm23_defense_diff': home_fm23['defense_strength'] - away_fm23['defense_strength'],
+        'fm23_overall_diff': home_fm23['overall'] - away_fm23['overall'],
 
         'h2h_home_wins': h2h['h2h_home_wins'],
         'h2h_draws': h2h['h2h_draws'],

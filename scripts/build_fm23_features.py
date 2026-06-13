@@ -15,8 +15,8 @@ Para cada jogador em data/processed/fm23_player_mapping.csv:
 Jogadores com supabase_name == 'Gol Contra' são ignorados.
 
 Salva o resultado em data/processed/fm23_player_attributes.csv com as
-colunas: supabase_id, supabase_name, supabase_team + os 14 atributos
-FM23 + source (matched/proxy/median).
+colunas: supabase_id, supabase_name, supabase_team, position + os 22
+atributos FM23 + source (matched/proxy/median).
 """
 
 import os
@@ -39,6 +39,7 @@ OUTPUT_PATH = Path("data/processed/fm23_player_attributes.csv")
 FM23_ATTRS = [
     "Fin", "OtB", "Com", "Dec", "Pac", "Acc", "Hea", "Pen",
     "Dri", "Str", "Vis", "Ant", "Fla", "Lon",
+    "Mar", "Tck", "Pos", "Ref", "Han", "TRO", "Cmd", "1v1",
 ]
 
 supabase = create_client(
@@ -122,7 +123,7 @@ def main():
         unmatched_part["source"] = "median"
 
     result = pd.concat([matched_part, unmatched_part], ignore_index=True)
-    result = result[["supabase_id", "supabase_name", "supabase_team"] + FM23_ATTRS + ["source"]]
+    result = result[["supabase_id", "supabase_name", "supabase_team", "position"] + FM23_ATTRS + ["source"]]
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     result.to_csv(OUTPUT_PATH, index=False, encoding="utf-8")

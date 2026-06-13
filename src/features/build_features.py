@@ -49,6 +49,92 @@ NAME_MAPPING = {
 def normalize_name(name: str) -> str:
     return NAME_MAPPING.get(name, name)
 
+# ── FM23 — TRADUÇÃO DE NOMES (Supabase, pt-BR) → INGLÊS (results.csv) ──
+FM23_TEAM_NAME_PT_TO_EN = {
+    'Alemanha': 'Germany',
+    'Argentina': 'Argentina',
+    'Argélia': 'Algeria',
+    'Arábia Saudita': 'Saudi Arabia',
+    'Austrália': 'Australia',
+    'Brasil': 'Brazil',
+    'Bélgica': 'Belgium',
+    'Bósnia': 'Bosnia-Herzegovina',
+    'Cabo Verde': 'Cape Verde',
+    'Canadá': 'Canada',
+    'Catar': 'Qatar',
+    'Colômbia': 'Colombia',
+    'Coreia do Sul': 'South Korea',
+    'Costa do Marfim': 'Ivory Coast',
+    'Croácia': 'Croatia',
+    'Curaçao': 'Curacao',
+    'Egito': 'Egypt',
+    'Equador': 'Ecuador',
+    'Escócia': 'Scotland',
+    'Espanha': 'Spain',
+    'Estados Unidos': 'USA',
+    'França': 'France',
+    'Gana': 'Ghana',
+    'Haiti': 'Haiti',
+    'Holanda': 'Netherlands',
+    'Inglaterra': 'England',
+    'Iraque': 'Iraq',
+    'Irã': 'Iran',
+    'Japão': 'Japan',
+    'Jordânia': 'Jordan',
+    'Marrocos': 'Morocco',
+    'México': 'Mexico',
+    'Noruega': 'Norway',
+    'Nova Zelândia': 'New Zealand',
+    'Panamá': 'Panama',
+    'Paraguai': 'Paraguay',
+    'Portugal': 'Portugal',
+    'Rep. D. Congo': 'DR Congo',
+    'Senegal': 'Senegal',
+    'Suécia': 'Sweden',
+    'Suíça': 'Switzerland',
+    'Tchéquia': 'Czech Republic',
+    'Tunísia': 'Tunisia',
+    'Turquia': 'Turkey',
+    'Uruguai': 'Uruguay',
+    'Uzbequistão': 'Uzbekistan',
+    'África do Sul': 'South Africa',
+    'Áustria': 'Austria',
+}
+
+FM23_METRICS = ['attack_strength', 'defense_strength', 'overall', 'gk_strength', 'depth']
+
+def load_team_fm23_features():
+    """Carrega métricas agregadas FM23 por seleção (data/processed/team_fm23_features.csv),
+    traduzidas para os nomes em inglês usados em match_features. Retorna:
+      - fm23_lookup: dict {team_name -> {métrica: valor}}
+      - fm23_defaults: médias globais, usadas para times sem dados FM23
+      - former_to_current: dict {nome antigo -> nome atual normalizado},
+        construído a partir de data/raw/former_names.csv
+    """
+    df = pd.read_csv('data/processed/team_fm23_features.csv')
+    df['team_name'] = df['team_name'].map(FM23_TEAM_NAME_PT_TO_EN).fillna(df['team_name'])
+
+    former_names = pd.read_csv('data/raw/former_names.csv')
+    former_to_current = {
+        row['former']: normalize_name(row['current'])
+        for _, row in former_names.iterrows()
+    }
+
+    fm23_lookup = df.set_index('team_name')[FM23_METRICS].to_dict('index')
+    fm23_defaults = df[FM23_METRICS].mean().to_dict()
+
+    return fm23_lookup, fm23_defaults, former_to_current
+
+def get_team_fm23(team: str, fm23_lookup: dict, fm23_defaults: dict, former_to_current: dict) -> dict:
+    """Retorna as métricas FM23 de `team`, com fallback via former_names.csv
+    e, por fim, médias globais para times fora das 48 seleções mapeadas."""
+    if team in fm23_lookup:
+        return fm23_lookup[team]
+    resolved = former_to_current.get(team)
+    if resolved in fm23_lookup:
+        return fm23_lookup[resolved]
+    return fm23_defaults
+
 def get_tournament_weight(tournament: str) -> float:
     t_lower = tournament.lower()
     for key, w in TOURNAMENT_WEIGHTS.items():
@@ -372,6 +458,8 @@ def build_match_features(df: pd.DataFrame,
     print("[Features] Construindo features por partida...")
     print(f"[Features] Total de partidas para processar: {len(df)}")
 
+    fm23_lookup, fm23_defaults, former_to_current = load_team_fm23_features()
+
     rows = []
 
     for i, match in df.iterrows():
@@ -389,6 +477,9 @@ def build_match_features(df: pd.DataFrame,
             continue
 
         h2h = compute_h2h(df, home, away, date)
+
+        home_fm23 = get_team_fm23(home, fm23_lookup, fm23_defaults, former_to_current)
+        away_fm23 = get_team_fm23(away, fm23_lookup, fm23_defaults, former_to_current)
 
         # Contexto da partida
         is_neutral = int(match['neutral'])
@@ -425,6 +516,11 @@ def build_match_features(df: pd.DataFrame,
             'home_sos_goals_against': home_f['sos_goals_against'],
             'home_sos_form': home_f['sos_form_goals'],
             'home_n_matches': home_f['n_matches'],
+            'home_fm23_attack_strength': home_fm23['attack_strength'],
+            'home_fm23_defense_strength': home_fm23['defense_strength'],
+            'home_fm23_overall': home_fm23['overall'],
+            'home_fm23_gk_strength': home_fm23['gk_strength'],
+            'home_fm23_depth': home_fm23['depth'],
 
             # Features away
             'away_fifa_points': away_f['fifa_points'],
@@ -446,6 +542,11 @@ def build_match_features(df: pd.DataFrame,
             'away_sos_goals_against': away_f['sos_goals_against'],
             'away_sos_form': away_f['sos_form_goals'],
             'away_n_matches': away_f['n_matches'],
+            'away_fm23_attack_strength': away_fm23['attack_strength'],
+            'away_fm23_defense_strength': away_fm23['defense_strength'],
+            'away_fm23_overall': away_fm23['overall'],
+            'away_fm23_gk_strength': away_fm23['gk_strength'],
+            'away_fm23_depth': away_fm23['depth'],
 
             # Diferenciais
             'diff_fifa_points': home_f['fifa_points'] - away_f['fifa_points'],
@@ -457,6 +558,9 @@ def build_match_features(df: pd.DataFrame,
             'diff_sos_goals': home_f['sos_goals_for'] - away_f['sos_goals_for'],
             'diff_sos_form': home_f['sos_form_goals'] - away_f['sos_form_goals'],
             'diff_avg_opp': home_f['avg_opp_points'] - away_f['avg_opp_points'],
+            'fm23_attack_diff': home_fm23['attack_strength'] - away_fm23['attack_strength'],
+            'fm23_defense_diff': home_fm23['defense_strength'] - away_fm23['defense_strength'],
+            'fm23_overall_diff': home_fm23['overall'] - away_fm23['overall'],
 
             # H2H
             'h2h_home_wins': h2h['h2h_home_wins'],

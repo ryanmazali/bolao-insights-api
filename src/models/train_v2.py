@@ -5,7 +5,7 @@ import json
 import os
 from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
 from sklearn.calibration import CalibratedClassifierCV
-from sklearn.metrics import accuracy_score, log_loss, mean_absolute_error, classification_report, recall_score
+from sklearn.metrics import accuracy_score, log_loss, mean_absolute_error, classification_report, recall_score, roc_auc_score
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.class_weight import compute_sample_weight
 from xgboost import XGBClassifier, XGBRegressor
@@ -19,6 +19,8 @@ FEATURE_COLS = [
     'home_win_rate_home', 'home_win_rate_neutral',
     'home_avg_opp_points', 'home_sos_goals_for',
     'home_sos_goals_against', 'home_sos_form',
+    'home_fm23_attack_strength', 'home_fm23_defense_strength',
+    'home_fm23_overall', 'home_fm23_gk_strength', 'home_fm23_depth',
 
     'away_fifa_points', 'away_goals_for', 'away_goals_against',
     'away_goal_diff', 'away_win_rate', 'away_draw_rate',
@@ -28,10 +30,13 @@ FEATURE_COLS = [
     'away_win_rate_away', 'away_win_rate_neutral',
     'away_avg_opp_points', 'away_sos_goals_for',
     'away_sos_goals_against', 'away_sos_form',
+    'away_fm23_attack_strength', 'away_fm23_defense_strength',
+    'away_fm23_overall', 'away_fm23_gk_strength', 'away_fm23_depth',
 
     'diff_fifa_points', 'diff_goals_for', 'diff_goals_against',
     'diff_win_rate', 'diff_form_win_rate', 'diff_form5',
     'diff_sos_goals', 'diff_sos_form', 'diff_avg_opp',
+    'fm23_attack_diff', 'fm23_defense_diff', 'fm23_overall_diff',
 
     'h2h_home_wins', 'h2h_draws', 'h2h_away_wins',
     'h2h_goals_avg', 'h2h_n',
@@ -90,9 +95,11 @@ def train_models():
 
     acc = accuracy_score(y_test, y_pred)
     ll = log_loss(y_test, y_prob)
+    auc = roc_auc_score(y_test, y_prob, multi_class='ovr', average='macro')
 
     print(f"Accuracy: {acc:.3f}")
     print(f"Log-loss: {ll:.3f}")
+    print(f"AUC-ROC (macro, ovr): {auc:.3f}")
     print(classification_report(y_test, y_pred, target_names=le.classes_))
 
     # Cross-validation
@@ -147,12 +154,14 @@ def train_models():
     over_pred = (y_pred_g > 2.5).astype(int)
     over_true = (y_test_g > 2.5).astype(int)
     over_acc = accuracy_score(over_true, over_pred)
+    over_auc = roc_auc_score(over_true, y_pred_g)
 
     # BTTS accuracy
     df_test_btts = df.iloc[int(len(df) * 0.85):]
 
     print(f"MAE gols: {mae:.3f}")
     print(f"Over/Under 2.5 accuracy: {over_acc:.3f}")
+    print(f"Over/Under 2.5 AUC-ROC: {over_auc:.3f}")
 
     # ── MODELO C — BTTS ───────────────────────────────────────────────
     print("\n=== MODELO C — AMBAS MARCAM ===")
