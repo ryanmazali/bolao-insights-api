@@ -34,6 +34,9 @@ FEATURE_COLS = [
     'opp_clean_sheet_rate',
     'team_coverage',
     'is_neutral',
+    # Atributos FM23 (data/processed/fm23_player_attributes.csv)
+    'Fin', 'OtB', 'Com', 'Dec', 'Pac', 'Acc', 'Hea', 'Pen',
+    'Dri', 'Str', 'Vis', 'Ant', 'Fla', 'Lon',
 ]
 
 def train_scorer_model():

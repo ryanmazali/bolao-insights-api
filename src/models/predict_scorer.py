@@ -72,6 +72,30 @@ def get_scorer_features_df():
         )
     return _scorer_features_cache
 
+# Atributos FM23 (data/processed/fm23_player_attributes.csv)
+FM23_ATTRS = [
+    'Fin', 'OtB', 'Com', 'Dec', 'Pac', 'Acc', 'Hea', 'Pen',
+    'Dri', 'Str', 'Vis', 'Ant', 'Fla', 'Lon',
+]
+
+_fm23_attributes_cache = None
+
+def get_fm23_attributes_df():
+    global _fm23_attributes_cache
+    if _fm23_attributes_cache is None:
+        _fm23_attributes_cache = pd.read_csv(
+            'data/processed/fm23_player_attributes.csv'
+        ).set_index('supabase_id')
+    return _fm23_attributes_cache
+
+def get_fm23_attributes(supabase_id: str) -> dict:
+    """Atributos FM23 do jogador pelo supabase_id; dict vazio se não encontrado."""
+    fm23_df = get_fm23_attributes_df()
+    if supabase_id not in fm23_df.index:
+        return {}
+    row = fm23_df.loc[supabase_id]
+    return {col: float(row[col]) for col in FM23_ATTRS}
+
 def get_convocados(team_name_en: str) -> list:
     """Busca jogadores convocados do Supabase pelo nome da seleção em inglês."""
 
@@ -135,7 +159,7 @@ def get_convocados(team_name_en: str) -> list:
     team_pt = TEAM_NAME_PT.get(team_name_en, team_name_en)
 
     response = supabase.table('players')\
-        .select('name, position, teams!inner(name)')\
+        .select('id, name, position, teams!inner(name)')\
         .eq('teams.name', team_pt)\
         .neq('name', 'Gol Contra')\
         .execute()
@@ -183,6 +207,9 @@ def predict_scorers(home_team: str,
             # Buscar histórico do jogador
             player_history = df[df['scorer'] == player_name_csv]
 
+            # Atributos FM23 do jogador (pelo supabase_id)
+            fm23_attrs = get_fm23_attributes(player['id'])
+
             # Position weight
             position_weight = {
                 'FW': 1.0, 'MF': 0.5, 'DF': 0.15, 'GK': 0.01
@@ -221,6 +248,7 @@ def predict_scorers(home_team: str,
                     'team_coverage': 0.5,
                     'is_neutral': int(is_neutral),
                 }
+                features.update(fm23_attrs)
             else:
                 # Usar última linha do histórico como base
                 last = player_history.sort_values('date').iloc[-1]
@@ -241,6 +269,7 @@ def predict_scorers(home_team: str,
                     'position_weight': position_weight,
                     'is_neutral': int(is_neutral),
                 })
+                features.update(fm23_attrs)
 
             # Garantir ordem correta das features
             feature_vector = [features.get(col, 0.0) for col in SCORER_FEATURES]

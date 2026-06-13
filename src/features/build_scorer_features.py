@@ -37,6 +37,100 @@ ELO_NAME_ALIASES = {
     'DR Congo': 'Democratic Republic of Congo',
 }
 
+# Atributos FM23 (data/processed/fm23_player_attributes.csv) usados como features.
+FM23_ATTRS = [
+    'Fin', 'OtB', 'Com', 'Dec', 'Pac', 'Acc', 'Hea', 'Pen',
+    'Dri', 'Str', 'Vis', 'Ant', 'Fla', 'Lon',
+]
+
+FM23_ATTRS_PATH = 'data/processed/fm23_player_attributes.csv'
+
+# Nomes em ingles (usados pelo modelo / eloratings.csv) -> nomes em
+# portugues cadastrados na tabela `teams` do Supabase.
+TEAM_NAME_PT = {
+    "Algeria": "Argélia",
+    "Argentina": "Argentina",
+    "Australia": "Austrália",
+    "Austria": "Áustria",
+    "Belgium": "Bélgica",
+    "Bosnia-Herzegovina": "Bósnia",
+    "Brazil": "Brasil",
+    "Canada": "Canadá",
+    "Cape Verde": "Cabo Verde",
+    "Colombia": "Colômbia",
+    "Croatia": "Croácia",
+    "Curacao": "Curaçao",
+    "Czech Republic": "Tchéquia",
+    "DR Congo": "Rep. D. Congo",
+    "Ecuador": "Equador",
+    "Egypt": "Egito",
+    "England": "Inglaterra",
+    "France": "França",
+    "Germany": "Alemanha",
+    "Ghana": "Gana",
+    "Haiti": "Haiti",
+    "Iran": "Irã",
+    "Iraq": "Iraque",
+    "Ivory Coast": "Costa do Marfim",
+    "Japan": "Japão",
+    "Jordan": "Jordânia",
+    "Mexico": "México",
+    "Morocco": "Marrocos",
+    "Netherlands": "Holanda",
+    "New Zealand": "Nova Zelândia",
+    "Norway": "Noruega",
+    "Panama": "Panamá",
+    "Paraguay": "Paraguai",
+    "Portugal": "Portugal",
+    "Qatar": "Catar",
+    "Saudi Arabia": "Arábia Saudita",
+    "Scotland": "Escócia",
+    "Senegal": "Senegal",
+    "South Africa": "África do Sul",
+    "South Korea": "Coreia do Sul",
+    "Spain": "Espanha",
+    "Sweden": "Suécia",
+    "Switzerland": "Suíça",
+    "Tunisia": "Tunísia",
+    "Turkey": "Turquia",
+    "United States": "Estados Unidos",
+    "Uruguay": "Uruguai",
+    "Uzbekistan": "Uzbequistão",
+}
+
+# Nomes cadastrados no Supabase -> nomes canonicos usados em scorer_features
+# (mesma grafia que aparece na coluna `scorer` deste dataset, apos normalize_name).
+SUPABASE_NAME_TO_SCORER_NAME = {
+    'Cuti Romero': 'Cristian Romero',
+    'Otamendi': 'Nicolás Otamendi',
+    'Nico González': 'Nicolás González',
+    'Vinícius Jr.': 'Vinícius Júnior',
+    'Vini Jr.': 'Vinícius Júnior',
+    'Dibu Martínez': 'Emiliano Martínez',
+    'Hwang Heechan': 'Hwang Hee-chan',
+    'Lee Jaesung': 'Lee Jae-sung',
+    'Lee Kangin': 'Lee Kang-in',
+    'Son Heungmin': 'Son Heung-min',
+    'Edin Dzeko': 'Edin Džeko',
+    'AlMoez Ali': 'Almoez Ali',
+    'Ricardo Rodriguez': 'Ricardo Rodríguez',
+    'Hakan Calhanoglu': 'Hakan Çalhanoğlu',
+    'Arda Guler': 'Arda Güler',
+    'Kerem Akturkoglu': 'Kerem Aktürkoğlu',
+    'Ritsu Doan': 'Ritsu Dōan',
+    'Jeremy Doku': 'Jérémy Doku',
+    'Salem Al Dawsari': 'Salem Al-Dawsari',
+    'Saleh Al Shehri': 'Saleh Al-Shehri',
+    'Giorgian De Arrascaeta': 'Giorgian de Arrascaeta',
+    'Alexander Sorloth': 'Alexander Sørloth',
+    'Ismaila Sarr': 'Ismaïla Sarr',
+    'Luka Modric': 'Luka Modrić',
+    'Mario Pasalic': 'Mario Pašalić',
+    'Nikola Vlasic': 'Nikola Vlašić',
+    'Ivan Perisic': 'Ivan Perišić',
+    'Andrej Kramaric': 'Andrej Kramarić',
+}
+
 def player_recency_weight(match_date: pd.Timestamp,
                            reference: pd.Timestamp) -> float:
     days_ago = (reference - match_date).days
@@ -45,24 +139,38 @@ def player_recency_weight(match_date: pd.Timestamp,
 def normalize_name(name: str) -> str:
     return MANUAL_MAPPING.get(name, name)
 
-def get_elo_at_date(elo_df: pd.DataFrame,
-                    team: str,
-                    date: pd.Timestamp) -> float:
-    """Retorna Elo do time na data mais próxima anterior.
+def build_elo_index(elo_df: pd.DataFrame) -> dict:
+    """Pré-indexa o Elo por seleção: team -> (datas ordenadas, ratings).
 
     Ignora linhas com rating ausente (ex.: Moldova em eloratings.csv tem
     `rating` vazio em quase todo o histórico) para nunca retornar NaN.
     """
-    mask = (elo_df['team'] == team) & (elo_df['date'] <= date) & elo_df['rating'].notna()
-    subset = elo_df[mask]
-    if len(subset) == 0:
+    elo_valid = elo_df[elo_df['rating'].notna()]
+    index = {}
+    for team, group in elo_valid.groupby('team'):
+        group = group.sort_values('date', kind='stable')
+        index[team] = (group['date'].values, group['rating'].values)
+    return index
+
+def _lookup_elo(arr, date: pd.Timestamp):
+    if arr is None:
+        return None
+    dates, ratings = arr
+    pos = np.searchsorted(dates, np.datetime64(date), side='right')
+    if pos == 0:
+        return None
+    return ratings[pos - 1]
+
+def get_elo_at_date(elo_index: dict,
+                    team: str,
+                    date: pd.Timestamp) -> float:
+    """Retorna Elo do time na data mais próxima anterior, via índice pré-construído."""
+    rating = _lookup_elo(elo_index.get(team), date)
+    if rating is None:
         alias = ELO_NAME_ALIASES.get(team)
         if alias:
-            mask = (elo_df['team'] == alias) & (elo_df['date'] <= date) & elo_df['rating'].notna()
-            subset = elo_df[mask]
-    if len(subset) == 0:
-        return 1500.0  # default neutro
-    return subset.iloc[-1]['rating']
+            rating = _lookup_elo(elo_index.get(alias), date)
+    return rating if rating is not None else 1500.0  # default neutro
 
 def elo_tier(elo_rating: float) -> str:
     """Classifica adversário por tier de Elo."""
@@ -102,9 +210,67 @@ def load_data():
 
     return results, scorers, elo
 
-def get_player_history(scorers: pd.DataFrame,
-                        results: pd.DataFrame,
-                        elo: pd.DataFrame,
+def build_scorer_match_index(scorers: pd.DataFrame) -> dict:
+    """Indexa gols por (scorer, date, home_team, away_team) -> (n_goals, is_penalty)."""
+    index = {}
+    for key, group in scorers.groupby(['scorer', 'date', 'home_team', 'away_team']):
+        index[key] = (len(group), bool(group['penalty'].any()))
+    return index
+
+def build_team_index(results: pd.DataFrame) -> tuple[dict, dict]:
+    """Pré-indexa as partidas na perspectiva de cada seleção (uma linha por
+    time/partida), ordenadas por data:
+    - team_matches_index: team -> DataFrame de partidas (date, opp_team,
+      is_home, neutral, tournament)
+    - team_conceded_index: team -> (datas ordenadas, gols sofridos)
+    """
+    cols = ['date', 'home_team', 'away_team', 'home_score', 'away_score', 'neutral', 'tournament']
+
+    home = results[cols].rename(columns={
+        'home_team': 'team', 'away_team': 'opp_team',
+        'home_score': 'team_score', 'away_score': 'opp_score',
+    })
+    home['is_home'] = True
+
+    away = results[cols].rename(columns={
+        'away_team': 'team', 'home_team': 'opp_team',
+        'away_score': 'team_score', 'home_score': 'opp_score',
+    })
+    away['is_home'] = False
+
+    long_df = pd.concat([home, away], ignore_index=True)
+
+    team_matches_index = {}
+    team_conceded_index = {}
+    for team, group in long_df.groupby('team'):
+        group = group.sort_values('date', kind='stable').reset_index(drop=True)
+        team_matches_index[team] = group
+        team_conceded_index[team] = (group['date'].values, group['opp_score'].values.astype(float))
+
+    return team_matches_index, team_conceded_index
+
+def opp_conceded_stats(team_conceded_index: dict,
+                        opp_team: str,
+                        date: pd.Timestamp) -> tuple[float, float]:
+    """Gols sofridos médios e taxa de clean sheet do adversário nas últimas
+    10 partidas anteriores a `date`."""
+    arr = team_conceded_index.get(opp_team)
+    if arr is None:
+        return 0.0, 0.25
+
+    dates, conceded = arr
+    pos = np.searchsorted(dates, np.datetime64(date), side='left')
+    window = conceded[max(0, pos - 10):pos]
+
+    if len(window) == 0:
+        return 0.0, 0.25
+
+    return float(window.mean()), float((window == 0).mean())
+
+def get_player_history(team_matches_index: dict,
+                        elo_index: dict,
+                        debut_dates: dict,
+                        scorer_match_index: dict,
                         scorer_name: str,
                         team_name: str) -> pd.DataFrame:
     """
@@ -114,47 +280,37 @@ def get_player_history(scorers: pd.DataFrame,
     A partir da primeira aparição no goalscorers.
     """
 
-    # Primeira aparição do jogador
-    player_goals = scorers[scorers['scorer'] == scorer_name]
-    if len(player_goals) == 0:
+    debut_date = debut_dates.get(scorer_name)
+    if debut_date is None:
         return pd.DataFrame()
 
-    debut_date = player_goals['date'].min()
+    team_matches_all = team_matches_index.get(team_name)
+    if team_matches_all is None:
+        return pd.DataFrame()
 
     # Todas as partidas da seleção após a estreia
-    team_matches = results[
-        (
-            (results['home_team'] == team_name) |
-            (results['away_team'] == team_name)
-        ) &
-        (results['date'] >= debut_date)
-    ].copy()
-
+    team_matches = team_matches_all[team_matches_all['date'] >= debut_date]
     if len(team_matches) == 0:
         return pd.DataFrame()
 
     rows = []
     for _, match in team_matches.iterrows():
         date = match['date']
-        home = match['home_team']
-        away = match['away_team']
-        is_home = (home == team_name)
-        opp_team = away if is_home else home
+        opp_team = match['opp_team']
+        is_home = bool(match['is_home'])
+        home = team_name if is_home else opp_team
+        away = opp_team if is_home else team_name
 
         # Verificar se marcou nessa partida
-        scored = scorers[
-            (scorers['scorer'] == scorer_name) &
-            (scorers['date'] == date) &
-            (scorers['home_team'] == home) &
-            (scorers['away_team'] == away)
-        ]
-        target = 1 if len(scored) > 0 else 0
-        n_goals = len(scored)
-        is_penalty = int(scored['penalty'].any()) if len(scored) > 0 else 0
+        n_goals, has_penalty = scorer_match_index.get(
+            (scorer_name, date, home, away), (0, False)
+        )
+        target = 1 if n_goals > 0 else 0
+        is_penalty = int(has_penalty) if n_goals > 0 else 0
 
         # Elo do adversário
-        opp_elo = get_elo_at_date(elo, opp_team, date)
-        team_elo = get_elo_at_date(elo, team_name, date)
+        opp_elo = get_elo_at_date(elo_index, opp_team, date)
+        team_elo = get_elo_at_date(elo_index, team_name, date)
         tier = elo_tier(opp_elo)
 
         # Pesos
@@ -273,6 +429,44 @@ def compute_player_features(history: pd.DataFrame,
         'position_weight': position_weight,
     }
 
+def load_fm23_lookup() -> tuple[dict, dict]:
+    """Carrega data/processed/fm23_player_attributes.csv e monta:
+    - lookup: (scorer_name, team_en) -> dict de atributos FM23
+    - global_median: dict com a mediana global dos atributos (jogadores com match real)
+
+    `scorer_name` e `team_en` usam a mesma grafia da coluna `scorer`/`team`
+    de scorer_features_v1.csv, para permitir o merge direto no
+    build_scorer_dataset.
+    """
+    attrs = pd.read_csv(FM23_ATTRS_PATH)
+
+    attrs['scorer_name'] = attrs['supabase_name'].map(
+        lambda n: SUPABASE_NAME_TO_SCORER_NAME.get(n, n)
+    )
+    team_name_en = {pt: en for en, pt in TEAM_NAME_PT.items()}
+    attrs['team_en'] = attrs['supabase_team'].map(
+        lambda t: team_name_en.get(t, t)
+    )
+
+    real_attrs = attrs[attrs['source'].isin(['matched', 'proxy'])]
+    global_median = real_attrs[FM23_ATTRS].median().to_dict()
+
+    attrs = attrs.drop_duplicates(subset=['scorer_name', 'team_en'])
+    lookup = {
+        (row['scorer_name'], row['team_en']): {col: row[col] for col in FM23_ATTRS}
+        for _, row in attrs.iterrows()
+    }
+    return lookup, global_median
+
+
+def get_fm23_attributes(lookup: dict,
+                         global_median: dict,
+                         scorer_name: str,
+                         team_name: str) -> dict:
+    """Atributos FM23 do jogador; usa mediana global se não encontrado."""
+    return lookup.get((scorer_name, team_name), global_median)
+
+
 def build_scorer_dataset(results: pd.DataFrame,
                           scorers: pd.DataFrame,
                           elo: pd.DataFrame) -> pd.DataFrame:
@@ -300,6 +494,16 @@ def build_scorer_dataset(results: pd.DataFrame,
 
     print(f"[Coverage] Cobertura média: {team_coverage.mean():.2f}")
 
+    fm23_lookup, fm23_global_median = load_fm23_lookup()
+    print(f"[FM23] {len(fm23_lookup)} jogadores com atributos mapeados")
+
+    # Índices pré-construídos para evitar refiltrar os dataframes inteiros
+    # a cada partida do histórico de cada jogador.
+    debut_dates = scorers.groupby('scorer')['date'].min().to_dict()
+    scorer_match_index = build_scorer_match_index(scorers)
+    elo_index = build_elo_index(elo)
+    team_matches_index, team_conceded_index = build_team_index(results)
+
     all_rows = []
 
     for i, (_, player_row) in enumerate(active_players.iterrows()):
@@ -310,12 +514,18 @@ def build_scorer_dataset(results: pd.DataFrame,
             print(f"[Scorers] Processando jogador {i}/{len(active_players)}: {scorer_name}")
 
         # Histórico completo do jogador
-        history = get_player_history(scorers, results, elo, scorer_name, team_name)
+        history = get_player_history(
+            team_matches_index, elo_index, debut_dates, scorer_match_index,
+            scorer_name, team_name,
+        )
         if len(history) == 0:
             continue
 
         # Coverage da seleção para normalização
         coverage = team_coverage.get(team_name, 0.5)
+
+        # Atributos FM23 do jogador (constantes ao longo do histórico)
+        fm23_attrs = get_fm23_attributes(fm23_lookup, fm23_global_median, scorer_name, team_name)
 
         # Para cada partida no histórico, construir features
         for _, match_row in history.iterrows():
@@ -331,35 +541,10 @@ def build_scorer_dataset(results: pd.DataFrame,
             team_elo = match_row['team_elo']
             opp_tier = match_row['opp_tier']
 
-            # Taxa de gols sofridos pelo adversário (proxy)
-            opp_matches = results[
-                (
-                    (results['home_team'] == match_row['opp_team']) |
-                    (results['away_team'] == match_row['opp_team'])
-                ) &
-                (results['date'] < date)
-            ].tail(10)
-
-            opp_goals_conceded = 0.0
-            if len(opp_matches) > 0:
-                opp_home = opp_matches[opp_matches['away_team'] == match_row['opp_team']]['home_score']
-                opp_away = opp_matches[opp_matches['home_team'] == match_row['opp_team']]['away_score']
-                all_conceded = pd.concat([opp_home, opp_away])
-                opp_goals_conceded = all_conceded.mean() if len(all_conceded) > 0 else 1.2
-
-            opp_clean_sheets = results[
-                (
-                    (results['home_team'] == match_row['opp_team']) |
-                    (results['away_team'] == match_row['opp_team'])
-                ) &
-                (results['date'] < date)
-            ].tail(10)
-
-            clean_sheet_rate = 0.25  # default
-            if len(opp_clean_sheets) > 0:
-                home_cs = (opp_clean_sheets['away_team'] == match_row['opp_team']) & (opp_clean_sheets['home_score'] == 0)
-                away_cs = (opp_clean_sheets['home_team'] == match_row['opp_team']) & (opp_clean_sheets['away_score'] == 0)
-                clean_sheet_rate = (home_cs | away_cs).mean()
+            # Taxa de gols sofridos / clean sheet do adversário (últimas 10 partidas)
+            opp_goals_conceded, clean_sheet_rate = opp_conceded_stats(
+                team_conceded_index, match_row['opp_team'], date
+            )
 
             row = {
                 # Identificação
@@ -400,6 +585,7 @@ def build_scorer_dataset(results: pd.DataFrame,
                 # Target
                 'target': match_row['target'],
             }
+            row.update(fm23_attrs)
             all_rows.append(row)
 
     df = pd.DataFrame(all_rows)
