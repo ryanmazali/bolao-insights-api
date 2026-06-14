@@ -185,18 +185,11 @@ async def update_odds(x_admin_secret: str = Header(None)):
                 .execute()
 
             if existing.data:
-                # Atualizar odds (não sobrescrever predições do modelo)
+                # Atualizar odds e predições do modelo (mantém o cache em
+                # dia com a versão atual do modelo v2)
+                update_record = {k: v for k, v in record.items() if k != "match_id"}
                 supabase.table("match_odds")\
-                    .update({
-                        "home_win_odd": record["home_win_odd"],
-                        "draw_odd": record["draw_odd"],
-                        "away_win_odd": record["away_win_odd"],
-                        "over_25_odd": record["over_25_odd"],
-                        "under_25_odd": record["under_25_odd"],
-                        "bookmaker": record["bookmaker"],
-                        "value_bets": vbets,
-                        "odds_updated_at": record["odds_updated_at"],
-                    })\
+                    .update(update_record)\
                     .eq("match_id", match_id)\
                     .execute()
                 results["updated"] += 1
