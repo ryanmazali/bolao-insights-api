@@ -9,8 +9,10 @@ from scipy.stats import poisson
 from src.features.build_features import (
     compute_h2h,
     compute_team_features,
+    get_elo_at_date,
     get_team_fm23,
     get_tournament_weight,
+    load_elo_ratings,
     load_fifa_rankings,
     load_results,
     load_team_fm23_features,
@@ -21,6 +23,7 @@ _BASE = Path("src/models/saved")
 
 _REQUIRED_FILES = [
     "model_result_v2.pkl",
+    "model_result_calibrator_v2.pkl",
     "model_goals_v2.pkl",
     "model_btts_v2.pkl",
     "label_encoder_v2.pkl",
@@ -37,6 +40,7 @@ def load_models():
         )
 
     model_result = joblib.load(_BASE / "model_result_v2.pkl")
+    result_calibrator = joblib.load(_BASE / "model_result_calibrator_v2.pkl")
     model_goals = joblib.load(_BASE / "model_goals_v2.pkl")
     model_btts = joblib.load(_BASE / "model_btts_v2.pkl")
     le = joblib.load(_BASE / "label_encoder_v2.pkl")
@@ -44,12 +48,13 @@ def load_models():
     with open(_BASE / "feature_columns_v2.json") as f:
         feature_cols = json.load(f)
 
-    return model_result, model_goals, model_btts, le, feature_cols
+    return model_result, result_calibrator, model_goals, model_btts, le, feature_cols
 
 
-model_result, model_goals, model_btts, le, FEATURE_COLS = load_models()
+model_result, result_calibrator, model_goals, model_btts, le, FEATURE_COLS = load_models()
 
-_df = load_results()
+_elo_df, _current_elo = load_elo_ratings()
+_df = load_results(_elo_df, _current_elo)
 _rankings_df, _current_rankings = load_fifa_rankings()
 _fm23_lookup, _fm23_defaults, _fm23_former_to_current = load_team_fm23_features()
 
@@ -110,10 +115,17 @@ def _build_feature_row(home_team: str, away_team: str, before_date: pd.Timestamp
         'home_sos_goals_against': home_f['sos_goals_against'],
         'home_sos_form': home_f['sos_form_goals'],
         'home_fm23_attack_strength': home_fm23['attack_strength'],
+        'home_fm23_best_attacker': home_fm23['best_attacker'],
+        'home_fm23_top3_attack': home_fm23['top3_attack'],
         'home_fm23_defense_strength': home_fm23['defense_strength'],
+        'home_fm23_best_defender': home_fm23['best_defender'],
+        'home_fm23_top5_defense': home_fm23['top5_defense'],
         'home_fm23_overall': home_fm23['overall'],
+        'home_fm23_best_overall': home_fm23['best_overall'],
+        'home_fm23_top11_overall': home_fm23['top11_overall'],
+        'home_fm23_depth_overall': home_fm23['depth_overall'],
+        'home_fm23_std_overall': home_fm23['std_overall'],
         'home_fm23_gk_strength': home_fm23['gk_strength'],
-        'home_fm23_depth': home_fm23['depth'],
 
         'away_fifa_points': away_f['fifa_points'],
         'away_goals_for': away_f['goals_for_avg'],
@@ -134,10 +146,17 @@ def _build_feature_row(home_team: str, away_team: str, before_date: pd.Timestamp
         'away_sos_goals_against': away_f['sos_goals_against'],
         'away_sos_form': away_f['sos_form_goals'],
         'away_fm23_attack_strength': away_fm23['attack_strength'],
+        'away_fm23_best_attacker': away_fm23['best_attacker'],
+        'away_fm23_top3_attack': away_fm23['top3_attack'],
         'away_fm23_defense_strength': away_fm23['defense_strength'],
+        'away_fm23_best_defender': away_fm23['best_defender'],
+        'away_fm23_top5_defense': away_fm23['top5_defense'],
         'away_fm23_overall': away_fm23['overall'],
+        'away_fm23_best_overall': away_fm23['best_overall'],
+        'away_fm23_top11_overall': away_fm23['top11_overall'],
+        'away_fm23_depth_overall': away_fm23['depth_overall'],
+        'away_fm23_std_overall': away_fm23['std_overall'],
         'away_fm23_gk_strength': away_fm23['gk_strength'],
-        'away_fm23_depth': away_fm23['depth'],
 
         'diff_fifa_points': home_f['fifa_points'] - away_f['fifa_points'],
         'diff_goals_for': home_f['goals_for_avg'] - away_f['goals_for_avg'],
@@ -151,6 +170,9 @@ def _build_feature_row(home_team: str, away_team: str, before_date: pd.Timestamp
         'fm23_attack_diff': home_fm23['attack_strength'] - away_fm23['attack_strength'],
         'fm23_defense_diff': home_fm23['defense_strength'] - away_fm23['defense_strength'],
         'fm23_overall_diff': home_fm23['overall'] - away_fm23['overall'],
+        'fm23_best_overall_diff': home_fm23['best_overall'] - away_fm23['best_overall'],
+        'fm23_top3_attack_diff': home_fm23['top3_attack'] - away_fm23['top3_attack'],
+        'fm23_top5_defense_diff': home_fm23['top5_defense'] - away_fm23['top5_defense'],
 
         'h2h_home_wins': h2h['h2h_home_wins'],
         'h2h_draws': h2h['h2h_draws'],
@@ -168,8 +190,18 @@ def predict_match(home_team: str, away_team: str) -> dict:
     row = _build_feature_row(home_team, away_team, before_date)
     X = np.array([[row[col] for col in FEATURE_COLS]])
 
-    # Resultado
-    probs = model_result.predict_proba(X)[0]
+    # Resultado — probabilidades brutas do XGB, calibradas por faixa de
+    # |elo_diff| (jogos muito desequilibrados são calibrados separadamente
+    # de jogos equilibrados, evitando empate inflado em confrontos como
+    # Alemanha x Curaçao).
+    home = normalize_name(home_team)
+    away = normalize_name(away_team)
+    home_elo = get_elo_at_date(_elo_df, _current_elo, home, before_date)
+    away_elo = get_elo_at_date(_elo_df, _current_elo, away, before_date)
+    elo_diff_abs = np.array([abs(home_elo - away_elo)])
+
+    raw_probs = model_result.predict_proba(X)
+    probs = result_calibrator.transform(raw_probs, elo_diff_abs)[0]
     classes = le.classes_  # ['A', 'D', 'H']
 
     home_win = float(probs[list(classes).index('H')])

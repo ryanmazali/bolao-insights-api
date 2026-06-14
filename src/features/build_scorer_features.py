@@ -25,10 +25,10 @@ MANUAL_MAPPING = {
 }
 
 POSITION_BASELINE = {
-    'FW': 0.35,   # atacante marca em ~35% das partidas
-    'MF': 0.12,   # meia marca em ~12%
-    'DF': 0.04,   # defensor marca em ~4%
-    'GK': 0.001,  # goleiro quase nunca
+    'FW': 0.12,   # atacante marca em ~12% das partidas
+    'MF': 0.05,   # meia marca em ~5%
+    'DF': 0.02,   # defensor marca em ~2%
+    'GK': 0.01,   # goleiro quase nunca
 }
 
 # Nomes que aparecem em results.csv/goalscorers.csv com grafia diferente em eloratings.csv
@@ -350,6 +350,8 @@ def compute_player_features(history: pd.DataFrame,
             'scoring_rate': POSITION_BASELINE.get(position, 0.05),
             'scoring_rate_recent10': POSITION_BASELINE.get(position, 0.05),
             'scoring_rate_recent5': POSITION_BASELINE.get(position, 0.05),
+            'scoring_rate_last_12m': POSITION_BASELINE.get(position, 0.05),
+            'scoring_rate_last_24m': POSITION_BASELINE.get(position, 0.05),
             'sos_scoring_rate': POSITION_BASELINE.get(position, 0.05),
             'goals_vs_elite': 0.0,
             'goals_vs_strong': 0.0,
@@ -366,14 +368,41 @@ def compute_player_features(history: pd.DataFrame,
     # Taxa de gol global ponderada
     scoring_rate = np.average(past['target'], weights=w)
 
-    # Taxa de gol recente
+    # Taxa de gol recente (com shrinkage bayesiano em direção à taxa de
+    # carreira, pseudo-contagem alpha=3). Com p~0.085-0.15 por partida,
+    # P(0 gols em 5/10 jogos seguidos) é alta mesmo para artilheiros de
+    # elite, e sem shrinkage essas janelas zeram completamente o sinal
+    # para jogadores como Havertz/Musiala (recent5=recent10=0.0 apesar de
+    # scoring_rate de carreira ~0.13-0.15).
+    RECENT_SHRINKAGE_ALPHA = 3
+
     recent10 = past.tail(10)
     w10 = recent10['recency_weight'].values
-    scoring_rate_recent10 = np.average(recent10['target'], weights=w10) if len(recent10) > 0 else scoring_rate
+    raw_recent10 = np.average(recent10['target'], weights=w10) if len(recent10) > 0 else scoring_rate
+    scoring_rate_recent10 = (raw_recent10 * 10 + RECENT_SHRINKAGE_ALPHA * scoring_rate) / (10 + RECENT_SHRINKAGE_ALPHA)
 
     recent5 = past.tail(5)
     w5 = recent5['recency_weight'].values
-    scoring_rate_recent5 = np.average(recent5['target'], weights=w5) if len(recent5) > 0 else scoring_rate
+    raw_recent5 = np.average(recent5['target'], weights=w5) if len(recent5) > 0 else scoring_rate
+    scoring_rate_recent5 = (raw_recent5 * 5 + RECENT_SHRINKAGE_ALPHA * scoring_rate) / (5 + RECENT_SHRINKAGE_ALPHA)
+
+    # Taxa de gol em janelas temporais (12/24 meses), em vez de janelas por
+    # quantidade de partidas: goalscorers.csv só registra partidas onde o
+    # jogador marcou, então "últimas N partidas" do histórico (que inclui
+    # todas as partidas da seleção) ainda é válido, mas com N pequeno (5/10)
+    # a taxa zera com frequência só por acaso (p ~ 0.85^5 ~ 44% de chance de
+    # 5 partidas sem gol mesmo para um artilheiro prolífico). Uma janela
+    # temporal mais larga reduz esse ruído.
+    last_12m_cutoff = before_date - pd.Timedelta(days=365)
+    last_24m_cutoff = before_date - pd.Timedelta(days=730)
+
+    last_12m = past[past['date'] >= last_12m_cutoff]
+    w12 = last_12m['recency_weight'].values
+    scoring_rate_last_12m = np.average(last_12m['target'], weights=w12) if len(last_12m) > 0 else scoring_rate
+
+    last_24m = past[past['date'] >= last_24m_cutoff]
+    w24 = last_24m['recency_weight'].values
+    scoring_rate_last_24m = np.average(last_24m['target'], weights=w24) if len(last_24m) > 0 else scoring_rate
 
     # Taxa ajustada por nível do adversário (SOS)
     # Normalizar Elo do adversário para peso
@@ -418,6 +447,8 @@ def compute_player_features(history: pd.DataFrame,
         'scoring_rate': scoring_rate,
         'scoring_rate_recent10': scoring_rate_recent10,
         'scoring_rate_recent5': scoring_rate_recent5,
+        'scoring_rate_last_12m': scoring_rate_last_12m,
+        'scoring_rate_last_24m': scoring_rate_last_24m,
         'sos_scoring_rate': sos_scoring_rate,
         'goals_vs_elite': goals_vs_elite,
         'goals_vs_strong': goals_vs_strong,
@@ -558,6 +589,8 @@ def build_scorer_dataset(results: pd.DataFrame,
                 'scoring_rate': player_f['scoring_rate'],
                 'scoring_rate_recent10': player_f['scoring_rate_recent10'],
                 'scoring_rate_recent5': player_f['scoring_rate_recent5'],
+                'scoring_rate_last_12m': player_f['scoring_rate_last_12m'],
+                'scoring_rate_last_24m': player_f['scoring_rate_last_24m'],
                 'sos_scoring_rate': player_f['sos_scoring_rate'],
                 'goals_vs_elite': player_f['goals_vs_elite'],
                 'goals_vs_strong': player_f['goals_vs_strong'],

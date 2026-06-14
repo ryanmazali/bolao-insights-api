@@ -44,7 +44,12 @@ NAME_MAPPING = {
     'Curaçao': 'Curacao',
     'Saint Kitts and Nevis': 'St Kitts and Nevis',
     'São Tomé and Príncipe': 'Sao Tome and Principe',
+    'Democratic Republic of Congo': 'DR Congo',
 }
+
+# Elo médio global (~1750), usado para normalizar elo_weight e como fallback
+# para seleções sem histórico em data/raw/eloratings.csv
+GLOBAL_AVG_ELO = 1750.0
 
 def normalize_name(name: str) -> str:
     return NAME_MAPPING.get(name, name)
@@ -101,7 +106,12 @@ FM23_TEAM_NAME_PT_TO_EN = {
     'Áustria': 'Austria',
 }
 
-FM23_METRICS = ['attack_strength', 'defense_strength', 'overall', 'gk_strength', 'depth']
+FM23_METRICS = [
+    'attack_strength', 'best_attacker', 'top3_attack',
+    'defense_strength', 'best_defender', 'top5_defense',
+    'gk_strength',
+    'overall', 'best_overall', 'top11_overall', 'depth_overall', 'std_overall',
+]
 
 def load_team_fm23_features():
     """Carrega métricas agregadas FM23 por seleção (data/processed/team_fm23_features.csv),
@@ -148,7 +158,7 @@ def recency_weight(match_date: pd.Timestamp, reference: pd.Timestamp) -> float:
     return max(0.15, np.exp(-0.0003 * days_ago))
 
 # ── CARREGAR DADOS ────────────────────────────────────────────────────
-def load_results() -> pd.DataFrame:
+def load_results(elo_df: pd.DataFrame, current_elo: dict) -> pd.DataFrame:
     df = pd.read_csv('data/raw/results.csv', parse_dates=['date'])
 
     # Remover partidas sem score (futuras)
@@ -174,7 +184,24 @@ def load_results() -> pd.DataFrame:
     df['recency_weight'] = df['date'].apply(
         lambda d: recency_weight(d, REFERENCE_DATE)
     )
-    df['sample_weight'] = df['tournament_weight'] * df['recency_weight']
+
+    # Peso composto: tournament_weight * elo_weight, onde elo_weight é o
+    # Elo médio das duas seleções normalizado pela média global (~1750).
+    # Jogos entre seleções fortes pesam mais; jogos assimétricos (ex.:
+    # Gibraltar, Curaçao) continuam presentes mas com peso reduzido.
+    df['home_elo'] = df.apply(
+        lambda r: get_elo_at_date(elo_df, current_elo, r['home_team'], r['date']),
+        axis=1
+    )
+    df['away_elo'] = df.apply(
+        lambda r: get_elo_at_date(elo_df, current_elo, r['away_team'], r['date']),
+        axis=1
+    )
+    df['avg_elo'] = (df['home_elo'] + df['away_elo']) / 2
+    df['elo_weight'] = df['avg_elo'] / GLOBAL_AVG_ELO
+    df['match_weight'] = df['tournament_weight'] * df['elo_weight']
+
+    df['sample_weight'] = df['match_weight'] * df['recency_weight']
 
     print(f"[Data] Partidas carregadas: {len(df)}")
     print(f"[Data] Período: {df['date'].min().date()} -> {df['date'].max().date()}")
@@ -232,6 +259,27 @@ def load_fifa_rankings() -> pd.DataFrame:
     print(f"[Rankings] Registros históricos: {len(rankings)}")
     return rankings, current_rankings
 
+# ── ELO HISTÓRICO ──────────────────────────────────────────────────────
+def load_elo_ratings():
+    """Carrega o histórico de Elo ratings (data/raw/eloratings.csv),
+    normalizado para os nomes usados em results.csv. Retorna:
+      - elo_df: DataFrame com colunas country_full, rank_date, total_points
+        (reutiliza o mesmo formato/índice do ranking FIFA)
+      - current_elo: dict {team -> último rating conhecido}, usado como
+        fallback para partidas após o fim do histórico
+    """
+    df = pd.read_csv('data/raw/eloratings.csv')
+    df['rank_date'] = pd.to_datetime(df['date'], format='mixed', dayfirst=False)
+    df['country_full'] = df['team'].apply(normalize_name)
+    df = df.rename(columns={'rating': 'total_points'})
+    df = df.dropna(subset=['total_points'])
+    df = df.sort_values('rank_date')
+
+    current_elo = df.groupby('country_full')['total_points'].last().to_dict()
+
+    print(f"[Elo] Registros históricos: {len(df)}")
+    return df[['country_full', 'rank_date', 'total_points']], current_elo
+
 _RANKING_INDEX_CACHE = {}
 
 def _get_ranking_index(rankings_df: pd.DataFrame) -> dict:
@@ -268,6 +316,25 @@ def get_ranking_at_date(rankings_df: pd.DataFrame,
 
     # Fallback para ranking atual
     return current_rankings.get(team, 1200.0)
+
+def get_elo_at_date(elo_df: pd.DataFrame,
+                     current_elo: dict,
+                     team: str,
+                     date: pd.Timestamp) -> float:
+    """Retorna o Elo do time na data mais próxima anterior à partida,
+    com fallback para o último Elo conhecido e, por fim, para a média
+    global (GLOBAL_AVG_ELO), usada por seleções sem histórico."""
+
+    index = _get_ranking_index(elo_df)
+    dates_points = index.get(team)
+
+    if dates_points is not None:
+        dates, points = dates_points
+        pos = np.searchsorted(dates, np.datetime64(date), side='right')
+        if pos > 0:
+            return points[pos - 1]
+
+    return current_elo.get(team, GLOBAL_AVG_ELO)
 
 # ── FEATURES POR TIME ─────────────────────────────────────────────────
 def compute_team_features(df: pd.DataFrame,
@@ -495,6 +562,9 @@ def build_match_features(df: pd.DataFrame,
             'is_neutral': is_neutral,
             'tournament_weight': t_weight,
             'sample_weight': match['sample_weight'],
+            'home_elo': match['home_elo'],
+            'away_elo': match['away_elo'],
+            'elo_diff_abs': abs(match['home_elo'] - match['away_elo']),
 
             # Features home
             'home_fifa_points': home_f['fifa_points'],
@@ -517,10 +587,17 @@ def build_match_features(df: pd.DataFrame,
             'home_sos_form': home_f['sos_form_goals'],
             'home_n_matches': home_f['n_matches'],
             'home_fm23_attack_strength': home_fm23['attack_strength'],
+            'home_fm23_best_attacker': home_fm23['best_attacker'],
+            'home_fm23_top3_attack': home_fm23['top3_attack'],
             'home_fm23_defense_strength': home_fm23['defense_strength'],
+            'home_fm23_best_defender': home_fm23['best_defender'],
+            'home_fm23_top5_defense': home_fm23['top5_defense'],
             'home_fm23_overall': home_fm23['overall'],
+            'home_fm23_best_overall': home_fm23['best_overall'],
+            'home_fm23_top11_overall': home_fm23['top11_overall'],
+            'home_fm23_depth_overall': home_fm23['depth_overall'],
+            'home_fm23_std_overall': home_fm23['std_overall'],
             'home_fm23_gk_strength': home_fm23['gk_strength'],
-            'home_fm23_depth': home_fm23['depth'],
 
             # Features away
             'away_fifa_points': away_f['fifa_points'],
@@ -543,10 +620,17 @@ def build_match_features(df: pd.DataFrame,
             'away_sos_form': away_f['sos_form_goals'],
             'away_n_matches': away_f['n_matches'],
             'away_fm23_attack_strength': away_fm23['attack_strength'],
+            'away_fm23_best_attacker': away_fm23['best_attacker'],
+            'away_fm23_top3_attack': away_fm23['top3_attack'],
             'away_fm23_defense_strength': away_fm23['defense_strength'],
+            'away_fm23_best_defender': away_fm23['best_defender'],
+            'away_fm23_top5_defense': away_fm23['top5_defense'],
             'away_fm23_overall': away_fm23['overall'],
+            'away_fm23_best_overall': away_fm23['best_overall'],
+            'away_fm23_top11_overall': away_fm23['top11_overall'],
+            'away_fm23_depth_overall': away_fm23['depth_overall'],
+            'away_fm23_std_overall': away_fm23['std_overall'],
             'away_fm23_gk_strength': away_fm23['gk_strength'],
-            'away_fm23_depth': away_fm23['depth'],
 
             # Diferenciais
             'diff_fifa_points': home_f['fifa_points'] - away_f['fifa_points'],
@@ -561,6 +645,9 @@ def build_match_features(df: pd.DataFrame,
             'fm23_attack_diff': home_fm23['attack_strength'] - away_fm23['attack_strength'],
             'fm23_defense_diff': home_fm23['defense_strength'] - away_fm23['defense_strength'],
             'fm23_overall_diff': home_fm23['overall'] - away_fm23['overall'],
+            'fm23_best_overall_diff': home_fm23['best_overall'] - away_fm23['best_overall'],
+            'fm23_top3_attack_diff': home_fm23['top3_attack'] - away_fm23['top3_attack'],
+            'fm23_top5_defense_diff': home_fm23['top5_defense'] - away_fm23['top5_defense'],
 
             # H2H
             'h2h_home_wins': h2h['h2h_home_wins'],
@@ -590,7 +677,8 @@ if __name__ == '__main__':
     os.makedirs('data/processed', exist_ok=True)
 
     print("=== CARREGANDO DADOS ===")
-    df = load_results()
+    elo_df, current_elo = load_elo_ratings()
+    df = load_results(elo_df, current_elo)
     rankings_df, current_rankings = load_fifa_rankings()
 
     print("\n=== CONSTRUINDO FEATURES ===")

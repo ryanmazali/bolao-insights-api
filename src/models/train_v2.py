@@ -1,14 +1,20 @@
+import sys
 import pandas as pd
 import numpy as np
 import joblib
 import json
 import os
+
+if sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8")
 from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import accuracy_score, log_loss, mean_absolute_error, classification_report, recall_score, roc_auc_score
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.class_weight import compute_sample_weight
 from xgboost import XGBClassifier, XGBRegressor
+
+from src.models.calibration import BinnedCalibrator, get_elo_bin
 
 FEATURE_COLS = [
     'home_fifa_points', 'home_goals_for', 'home_goals_against',
@@ -19,8 +25,10 @@ FEATURE_COLS = [
     'home_win_rate_home', 'home_win_rate_neutral',
     'home_avg_opp_points', 'home_sos_goals_for',
     'home_sos_goals_against', 'home_sos_form',
-    'home_fm23_attack_strength', 'home_fm23_defense_strength',
-    'home_fm23_overall', 'home_fm23_gk_strength', 'home_fm23_depth',
+    'home_fm23_attack_strength', 'home_fm23_best_attacker', 'home_fm23_top3_attack',
+    'home_fm23_defense_strength', 'home_fm23_best_defender', 'home_fm23_top5_defense',
+    'home_fm23_overall', 'home_fm23_best_overall', 'home_fm23_top11_overall',
+    'home_fm23_depth_overall', 'home_fm23_std_overall', 'home_fm23_gk_strength',
 
     'away_fifa_points', 'away_goals_for', 'away_goals_against',
     'away_goal_diff', 'away_win_rate', 'away_draw_rate',
@@ -30,13 +38,16 @@ FEATURE_COLS = [
     'away_win_rate_away', 'away_win_rate_neutral',
     'away_avg_opp_points', 'away_sos_goals_for',
     'away_sos_goals_against', 'away_sos_form',
-    'away_fm23_attack_strength', 'away_fm23_defense_strength',
-    'away_fm23_overall', 'away_fm23_gk_strength', 'away_fm23_depth',
+    'away_fm23_attack_strength', 'away_fm23_best_attacker', 'away_fm23_top3_attack',
+    'away_fm23_defense_strength', 'away_fm23_best_defender', 'away_fm23_top5_defense',
+    'away_fm23_overall', 'away_fm23_best_overall', 'away_fm23_top11_overall',
+    'away_fm23_depth_overall', 'away_fm23_std_overall', 'away_fm23_gk_strength',
 
     'diff_fifa_points', 'diff_goals_for', 'diff_goals_against',
     'diff_win_rate', 'diff_form_win_rate', 'diff_form5',
     'diff_sos_goals', 'diff_sos_form', 'diff_avg_opp',
     'fm23_attack_diff', 'fm23_defense_diff', 'fm23_overall_diff',
+    'fm23_best_overall_diff', 'fm23_top3_attack_diff', 'fm23_top5_defense_diff',
 
     'h2h_home_wins', 'h2h_draws', 'h2h_away_wins',
     'h2h_goals_avg', 'h2h_n',
@@ -47,7 +58,7 @@ FEATURE_COLS = [
 def train_models():
     print("=== CARREGANDO FEATURES ===")
     df = pd.read_csv('data/processed/match_features_v2.csv', parse_dates=['date'])
-    df = df.dropna(subset=FEATURE_COLS + ['result', 'total_goals'])
+    df = df.dropna(subset=FEATURE_COLS + ['result', 'total_goals', 'elo_diff_abs'])
 
     print(f"Partidas disponíveis: {len(df)}")
     print(f"Período: {df['date'].min().date()} → {df['date'].max().date()}")
@@ -56,6 +67,7 @@ def train_models():
 
     X = df[FEATURE_COLS].values
     sample_weights = df['sample_weight'].values
+    elo_diff_abs = df['elo_diff_abs'].values
 
     # ── MODELO A — Resultado ──────────────────────────────────────────
     print("\n=== MODELO A — RESULTADO ===")
@@ -63,12 +75,12 @@ def train_models():
     le = LabelEncoder()
     y_result = le.fit_transform(df['result'])
 
-    X_train, X_test, y_train, y_test, w_train, w_test = train_test_split(
-        X, y_result, sample_weights,
+    X_train, X_test, y_train, y_test, w_train, w_test, elo_train, elo_test = train_test_split(
+        X, y_result, sample_weights, elo_diff_abs,
         test_size=0.15, random_state=42, stratify=y_result
     )
 
-    xgb_result = XGBClassifier(
+    XGB_RESULT_PARAMS = dict(
         n_estimators=500,
         max_depth=4,
         learning_rate=0.03,
@@ -87,11 +99,32 @@ def train_models():
     class_weights = compute_sample_weight('balanced', y_train)
     combined_weights = w_train * class_weights
 
-    model_result = CalibratedClassifierCV(xgb_result, cv=5, method='sigmoid')
+    # Modelo final (sem calibração global — a calibração isotonic é feita
+    # por faixa de |elo_diff| abaixo, via BinnedCalibrator).
+    model_result = XGBClassifier(**XGB_RESULT_PARAMS)
     model_result.fit(X_train, y_train, sample_weight=combined_weights)
 
-    y_pred = model_result.predict(X_test)
-    y_prob = model_result.predict_proba(X_test)
+    # ── CALIBRAÇÃO POR FAIXA DE |ELO_DIFF| ─────────────────────────────
+    # Probabilidades out-of-fold no treino, para calibrar sem overfitting.
+    print("\n=== CALIBRAÇÃO POR FAIXA DE ELO_DIFF ===")
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    oof_probs = np.zeros((len(X_train), len(le.classes_)))
+    for tr_idx, val_idx in skf.split(X_train, y_train):
+        fold_model = XGBClassifier(**XGB_RESULT_PARAMS)
+        fold_model.fit(X_train[tr_idx], y_train[tr_idx], sample_weight=combined_weights[tr_idx])
+        oof_probs[val_idx] = fold_model.predict_proba(X_train[val_idx])
+
+    binned_calibrator = BinnedCalibrator(n_classes=len(le.classes_))
+    binned_calibrator.fit(oof_probs, y_train, elo_train)
+
+    elo_train_bins = np.array([get_elo_bin(d) for d in elo_train])
+    for b, label in enumerate(['<100 (equilibrado)', '100-300 (favorito claro)', '>=300 (disparidade extrema)']):
+        print(f"  Faixa {b} [{label}]: {(elo_train_bins == b).sum()} partidas de treino")
+
+    # ── AVALIAÇÃO (probabilidades calibradas por faixa) ────────────────
+    raw_probs_test = model_result.predict_proba(X_test)
+    y_prob = binned_calibrator.transform(raw_probs_test, elo_test)
+    y_pred = np.argmax(y_prob, axis=1)
 
     acc = accuracy_score(y_test, y_pred)
     ll = log_loss(y_test, y_prob)
@@ -102,9 +135,9 @@ def train_models():
     print(f"AUC-ROC (macro, ovr): {auc:.3f}")
     print(classification_report(y_test, y_pred, target_names=le.classes_))
 
-    # Cross-validation
+    # Cross-validation (accuracy do XGB base, sem calibração)
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    cv_scores = cross_val_score(model_result, X, y_result, cv=cv, scoring='accuracy')
+    cv_scores = cross_val_score(XGBClassifier(**XGB_RESULT_PARAMS), X, y_result, cv=cv, scoring='accuracy')
     print(f"CV Accuracy: {cv_scores.mean():.3f} ± {cv_scores.std():.3f}")
 
     # ── THRESHOLD TUNING — EMPATE ──────────────────────────────────────
@@ -195,6 +228,7 @@ def train_models():
     os.makedirs('src/models/saved', exist_ok=True)
 
     joblib.dump(model_result, 'src/models/saved/model_result_v2.pkl')
+    joblib.dump(binned_calibrator, 'src/models/saved/model_result_calibrator_v2.pkl')
     joblib.dump(xgb_goals, 'src/models/saved/model_goals_v2.pkl')
     joblib.dump(model_btts, 'src/models/saved/model_btts_v2.pkl')
     joblib.dump(le, 'src/models/saved/label_encoder_v2.pkl')
@@ -204,6 +238,7 @@ def train_models():
 
     print("\n=== MODELOS SALVOS ===")
     print("src/models/saved/model_result_v2.pkl")
+    print("src/models/saved/model_result_calibrator_v2.pkl")
     print("src/models/saved/model_goals_v2.pkl")
     print("src/models/saved/model_btts_v2.pkl")
 

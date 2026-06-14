@@ -14,6 +14,8 @@ FEATURE_COLS = [
     'scoring_rate',
     'scoring_rate_recent10',
     'scoring_rate_recent5',
+    'scoring_rate_last_12m',
+    'scoring_rate_last_24m',
     'sos_scoring_rate',
     'goals_vs_elite',
     'goals_vs_strong',
@@ -128,15 +130,9 @@ def train_scorer_model():
     with open('src/models/saved/scorer_feature_columns_v1.json', 'w') as f:
         json.dump(FEATURE_COLS, f)
 
-    # Salvar mapping scorer -> team para uso na API
-    scorer_team_map = df.groupby('scorer')['team'].first().to_dict()
-    with open('src/models/saved/scorer_team_map.json', 'w', encoding='utf-8') as f:
-        json.dump(scorer_team_map, f, ensure_ascii=False)
-
     print("\n=== MODELOS SALVOS ===")
     print("src/models/saved/model_scorer_v1.pkl")
     print("src/models/saved/scorer_feature_columns_v1.json")
-    print("src/models/saved/scorer_team_map.json")
 
     # Teste de predição — top marcadores Brasil vs Marrocos
     print("\n=== TESTE: top marcadores Brasil ===")

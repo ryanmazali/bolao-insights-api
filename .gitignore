@@ -34,11 +34,6 @@ data/processed/*
 !src/models/saved/feature_columns.json
 !src/models/saved/feature_columns_v2.json
 !src/models/saved/scorer_feature_columns_v1.json
-!src/models/saved/scorer_team_map.json
 
 # modelos treinados sobem junto com o repo
 !src/models/saved/*.pkl
-
-# arquivos de exploração/teste não vão para prod
-src/scraping/sofascore_test.py
-src/scraping/football_data_explore.py

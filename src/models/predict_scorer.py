@@ -15,9 +15,6 @@ model_scorer = joblib.load(f'{MODEL_DIR}/model_scorer_v1.pkl')
 with open(f'{MODEL_DIR}/scorer_feature_columns_v1.json') as f:
     SCORER_FEATURES = json.load(f)
 
-with open(f'{MODEL_DIR}/scorer_team_map.json', encoding='utf-8') as f:
-    SCORER_TEAM_MAP = json.load(f)
-
 # Cliente Supabase
 supabase = create_client(
     os.getenv('SUPABASE_URL'),
@@ -217,38 +214,37 @@ def predict_scorers(home_team: str,
 
             # Baseline por posição se sem histórico
             POSITION_BASELINE = {
-                'FW': 0.35, 'MF': 0.12, 'DF': 0.04, 'GK': 0.001
+                'FW': 0.12, 'MF': 0.05, 'DF': 0.02, 'GK': 0.01
             }
 
             if len(player_history) == 0:
-                # Sem histórico — usar baseline
-                features = {
-                    'n_matches': 0,
-                    'scoring_rate': POSITION_BASELINE.get(position, 0.05),
-                    'scoring_rate_recent10': POSITION_BASELINE.get(position, 0.05),
-                    'scoring_rate_recent5': POSITION_BASELINE.get(position, 0.05),
-                    'sos_scoring_rate': POSITION_BASELINE.get(position, 0.05),
-                    'goals_vs_elite': 0.0,
-                    'goals_vs_strong': 0.0,
-                    'goals_vs_mid': POSITION_BASELINE.get(position, 0.05),
-                    'goals_vs_weak': POSITION_BASELINE.get(position, 0.05) * 1.5,
-                    'penalty_rate': 0.0,
-                    'is_penalty_taker': 0,
-                    'avg_goals_per_game': 0.0,
-                    'position_weight': position_weight,
-                    'opp_elo': opp_elo,
-                    'team_elo': team_elo,
-                    'elo_diff': team_elo - opp_elo,
-                    'opp_tier_elite': int(opp_elo >= 1900),
-                    'opp_tier_strong': int(1800 <= opp_elo < 1900),
-                    'opp_tier_mid': int(1700 <= opp_elo < 1800),
-                    'opp_tier_weak': int(opp_elo < 1700),
-                    'opp_goals_conceded_avg': opp_goals_conceded,
-                    'opp_clean_sheet_rate': opp_clean_sheet_rate,
-                    'team_coverage': 0.5,
-                    'is_neutral': int(is_neutral),
-                }
-                features.update(fm23_attrs)
+                # Sem histórico — o modelo nunca viu n_matches=0 no treino
+                # (essas linhas são removidas por correlação espúria com o
+                # gol de estreia, ver train_scorer.py), então alimentá-lo
+                # com esse vetor sintético gera extrapolação errática (ex:
+                # goleiros reserva e zagueiros "sem histórico" previstos a
+                # 15-20%, acima de atacantes titulares). Em vez disso, usa
+                # diretamente o baseline por posição, ajustado pela força
+                # do adversário.
+                opp_tier_multiplier = (
+                    0.7 if opp_elo >= 1900 else
+                    0.85 if opp_elo >= 1800 else
+                    1.0 if opp_elo >= 1700 else
+                    1.25
+                )
+                prob = POSITION_BASELINE.get(position, 0.05) * opp_tier_multiplier
+
+                if position == 'GK':
+                    prob = min(prob, 0.005)
+
+                team_results.append({
+                    'player': player_name_supabase,
+                    'position': position,
+                    'probability': round(prob, 4),
+                    'probability_pct': round(prob * 100, 1),
+                    'has_history': False,
+                })
+                continue
             else:
                 # Usar última linha do histórico como base
                 last = player_history.sort_values('date').iloc[-1]
