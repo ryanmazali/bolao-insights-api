@@ -10,6 +10,7 @@ data/raw/*
 !data/raw/fifa_ranking-2024-04-04.csv
 !data/raw/fifa_ranking-2024-06-20.csv
 !data/raw/eloratings.csv
+!data/raw/former_names.csv
 
 # ignora conteúdo de processed, exceto o que a API precisa em produção
 data/processed/*
@@ -31,6 +32,7 @@ data/processed/*
 !data/raw/fifa_ranking-2024-04-04.csv
 !data/raw/fifa_ranking-2024-06-20.csv
 !data/raw/eloratings.csv
+!data/raw/former_names.csv
 
 # JSON ignorado por padrão, exceto arquivos de configuração do projeto
 *.json
