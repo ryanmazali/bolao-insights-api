@@ -15,11 +15,17 @@ data/raw/*
 data/processed/*
 !data/processed/team_features.csv
 !data/processed/scorer_features_v1.csv
+!data/processed/team_fm23_features.csv
+!data/processed/fm23_player_mapping.csv
+!data/processed/fm23_player_attributes.csv
 
 # ignora CSVs soltos em outras pastas
 *.csv
 !data/processed/team_features.csv
 !data/processed/scorer_features_v1.csv
+!data/processed/team_fm23_features.csv
+!data/processed/fm23_player_mapping.csv
+!data/processed/fm23_player_attributes.csv
 !data/raw/results.csv
 !data/raw/fifa_ranking-2023-07-20.csv
 !data/raw/fifa_ranking-2024-04-04.csv
