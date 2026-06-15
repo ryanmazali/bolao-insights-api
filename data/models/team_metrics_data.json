@@ -1,6 +1,5 @@
 {
   "Albania": {
-    "shots_p90": 9.98237901229789,
     "sot_p90": 4.042429942040436,
     "xg_p90": 0.6773061497840565,
     "shots_conceded_p90": 16.86969650360798,
@@ -12,10 +11,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 1.4578289942914606
+    "defensive_factor": 1.4578289942914606,
+    "shots_p90_weighted": 9.98237901229789,
+    "avg_opponent_rank": 9.0,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 9.98237901229789,
+    "shots_p90": 9.98237901229789,
+    "shots_p90_source": "statsbomb"
   },
   "Algeria": {
-    "shots_p90": 14.181910889053862,
     "sot_p90": 3.9082742271182984,
     "xg_p90": 1.168618817687921,
     "shots_conceded_p90": 9.269668467907374,
@@ -27,10 +31,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 0.801057177116048
+    "defensive_factor": 0.801057177116048,
+    "shots_p90_weighted": 14.181910889053862,
+    "avg_opponent_rank": 87.0,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 14.181910889053862,
+    "shots_p90": 8.509146533432316,
+    "shots_p90_source": "statsbomb"
   },
   "Angola": {
-    "shots_p90": 10.071850814470945,
     "sot_p90": 3.3529409795236305,
     "xg_p90": 1.2434136149589414,
     "shots_conceded_p90": 13.93316130515296,
@@ -42,10 +51,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 1.2040623569278561
+    "defensive_factor": 1.2040623569278561,
+    "shots_p90_weighted": 9.668256801853328,
+    "avg_opponent_rank": 69.2,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 10.071850814470945,
+    "shots_p90": 5.800954081111997,
+    "shots_p90_source": "statsbomb"
   },
   "Argentina": {
-    "shots_p90": 12.981882465084775,
     "sot_p90": 5.262845182443321,
     "xg_p90": 2.304946434715237,
     "shots_conceded_p90": 8.431960990664324,
@@ -57,10 +71,15 @@
     "tournaments": [
       "Copa America 2024"
     ],
-    "defensive_factor": 0.7286649886259656
+    "defensive_factor": 0.7286649886259656,
+    "shots_p90_weighted": 12.284035987088968,
+    "avg_opponent_rank": 35.833333333333336,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 12.981882465084775,
+    "shots_p90": 12.284035987088968,
+    "shots_p90_source": "statsbomb"
   },
   "Austria": {
-    "shots_p90": 11.785262047188358,
     "sot_p90": 5.178389662602655,
     "xg_p90": 1.440125236387733,
     "shots_conceded_p90": 10.737456034068106,
@@ -72,10 +91,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 0.927899012768039
+    "defensive_factor": 0.927899012768039,
+    "shots_p90_weighted": 11.191600109666794,
+    "avg_opponent_rank": 19.25,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 11.785262047188358,
+    "shots_p90": 11.191600109666794,
+    "shots_p90_source": "statsbomb"
   },
   "Belgium": {
-    "shots_p90": 12.53886027370432,
     "sot_p90": 4.741903028531107,
     "xg_p90": 1.0351189255591486,
     "shots_conceded_p90": 13.585409111555087,
@@ -87,10 +111,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 1.1740106467179532
+    "defensive_factor": 1.1740106467179532,
+    "shots_p90_weighted": 11.441052821407029,
+    "avg_opponent_rank": 29.5,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 12.53886027370432,
+    "shots_p90": 11.441052821407029,
+    "shots_p90_source": "statsbomb"
   },
   "Bolivia": {
-    "shots_p90": 5.4280972331528,
     "sot_p90": 2.2326835544768064,
     "xg_p90": 0.3161896964360465,
     "shots_conceded_p90": 16.31602490977914,
@@ -102,10 +131,15 @@
     "tournaments": [
       "Copa America 2024"
     ],
-    "defensive_factor": 1.40998234200423
+    "defensive_factor": 1.40998234200423,
+    "shots_p90_weighted": 5.236824022450468,
+    "avg_opponent_rank": 23.666666666666668,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 5.4280972331528,
+    "shots_p90": 5.236824022450468,
+    "shots_p90_source": "statsbomb"
   },
   "Brazil": {
-    "shots_p90": 12.442373803578313,
     "sot_p90": 3.929593939606579,
     "xg_p90": 2.034867871526671,
     "shots_conceded_p90": 10.175693719516643,
@@ -117,10 +151,15 @@
     "tournaments": [
       "Copa America 2024"
     ],
-    "defensive_factor": 0.8793531844611544
+    "defensive_factor": 0.8793531844611544,
+    "shots_p90_weighted": 11.12975547326672,
+    "avg_opponent_rank": 33.75,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 12.442373803578313,
+    "shots_p90": 11.12975547326672,
+    "shots_p90_source": "statsbomb"
   },
   "Burkina Faso": {
-    "shots_p90": 10.497525923671253,
     "sot_p90": 3.4144047534244835,
     "xg_p90": 1.1042002574271377,
     "shots_conceded_p90": 10.008143393050377,
@@ -132,10 +171,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 0.8648739836128593
+    "defensive_factor": 0.8648739836128593,
+    "shots_p90_weighted": 9.760464736359294,
+    "avg_opponent_rank": 71.5,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 10.497525923671253,
+    "shots_p90": 5.856278841815576,
+    "shots_p90_source": "statsbomb"
   },
   "Cameroon": {
-    "shots_p90": 8.457964672833768,
     "sot_p90": 1.3713852991562185,
     "xg_p90": 0.6375301479231235,
     "shots_conceded_p90": 7.722508776452489,
@@ -147,10 +191,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 0.6673562384821151
+    "defensive_factor": 0.6673562384821151,
+    "shots_p90_weighted": 7.094964894788087,
+    "avg_opponent_rank": 63.25,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 8.457964672833768,
+    "shots_p90": 4.256978936872852,
+    "shots_p90_source": "statsbomb"
   },
   "Canada": {
-    "shots_p90": 9.9784517631768,
     "sot_p90": 3.6300518751942525,
     "xg_p90": 1.9511614000488227,
     "shots_conceded_p90": 11.712442099107838,
@@ -162,10 +211,15 @@
     "tournaments": [
       "Copa America 2024"
     ],
-    "defensive_factor": 1.0121544084914338
+    "defensive_factor": 1.0121544084914338,
+    "shots_p90_weighted": 9.897588993416422,
+    "avg_opponent_rank": 24.166666666666668,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 9.9784517631768,
+    "shots_p90": 9.897588993416422,
+    "shots_p90_source": "statsbomb"
   },
   "Cape Verde Islands": {
-    "shots_p90": 13.30375311163005,
     "sot_p90": 3.9427804863677833,
     "xg_p90": 1.7221618710938764,
     "shots_conceded_p90": 13.041471136189037,
@@ -177,10 +231,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 1.1270051447864142
+    "defensive_factor": 1.1270051447864142,
+    "shots_p90_weighted": 12.662130195716383,
+    "avg_opponent_rank": 75.8,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 13.30375311163005,
+    "shots_p90": 7.59727811742983,
+    "shots_p90_source": "statsbomb"
   },
   "Chile": {
-    "shots_p90": 6.8748304781068965,
     "sot_p90": 2.4919638429097724,
     "xg_p90": 0.503835667879078,
     "shots_conceded_p90": 11.880883279752721,
@@ -192,10 +251,15 @@
     "tournaments": [
       "Copa America 2024"
     ],
-    "defensive_factor": 1.0267105943080712
+    "defensive_factor": 1.0267105943080712,
+    "shots_p90_weighted": 6.491342556459565,
+    "avg_opponent_rank": 27.333333333333332,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 6.8748304781068965,
+    "shots_p90": 6.491342556459565,
+    "shots_p90_source": "statsbomb"
   },
   "Colombia": {
-    "shots_p90": 11.779944195766959,
     "sot_p90": 3.961258925259596,
     "xg_p90": 1.4496101418654253,
     "shots_conceded_p90": 8.858116748539794,
@@ -207,10 +271,15 @@
     "tournaments": [
       "Copa America 2024"
     ],
-    "defensive_factor": 0.765492101655666
+    "defensive_factor": 0.765492101655666,
+    "shots_p90_weighted": 11.855362991208315,
+    "avg_opponent_rank": 29.0,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 11.779944195766959,
+    "shots_p90": 11.855362991208315,
+    "shots_p90_source": "statsbomb"
   },
   "Congo DR": {
-    "shots_p90": 12.939169890775116,
     "sot_p90": 3.9819834689649016,
     "xg_p90": 2.6072127593654773,
     "shots_conceded_p90": 8.40931163006626,
@@ -222,10 +291,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 0.7267076982517754
+    "defensive_factor": 0.7267076982517754,
+    "shots_p90_weighted": 12.101862478925813,
+    "avg_opponent_rank": 61.142857142857146,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 12.939169890775116,
+    "shots_p90": 7.261117487355488,
+    "shots_p90_source": "statsbomb"
   },
   "Costa Rica": {
-    "shots_p90": 2.8861371009107164,
     "sot_p90": 0.6245662734212353,
     "xg_p90": 0.15045055420865638,
     "shots_conceded_p90": 17.48973899027966,
@@ -237,10 +311,15 @@
     "tournaments": [
       "Copa America 2024"
     ],
-    "defensive_factor": 1.5114112217233073
+    "defensive_factor": 1.5114112217233073,
+    "shots_p90_weighted": 3.0418968363948715,
+    "avg_opponent_rank": 24.333333333333332,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 2.8861371009107164,
+    "shots_p90": 3.0418968363948715,
+    "shots_p90_source": "statsbomb"
   },
   "Croatia": {
-    "shots_p90": 13.291579973610842,
     "sot_p90": 5.237351140718366,
     "xg_p90": 1.8011517106294583,
     "shots_conceded_p90": 11.693019454556335,
@@ -252,10 +331,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 1.010475961320381
+    "defensive_factor": 1.010475961320381,
+    "shots_p90_weighted": 11.794685779662311,
+    "avg_opponent_rank": 27.666666666666668,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 13.291579973610842,
+    "shots_p90": 11.794685779662311,
+    "shots_p90_source": "statsbomb"
   },
   "Czech Republic": {
-    "shots_p90": 13.798989363121962,
     "sot_p90": 5.638023544706748,
     "xg_p90": 1.4386092552297736,
     "shots_conceded_p90": 13.139855563927346,
@@ -267,10 +351,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 1.1355072343950212
+    "defensive_factor": 1.1355072343950212,
+    "shots_p90_weighted": 10.842153987666858,
+    "avg_opponent_rank": 40.333333333333336,
+    "regression_factor": 0.85,
+    "shots_p90_raw": 13.798989363121962,
+    "shots_p90": 9.215830889516829,
+    "shots_p90_source": "statsbomb"
   },
   "Côte d'Ivoire": {
-    "shots_p90": 12.824809365317492,
     "sot_p90": 3.601472351677176,
     "xg_p90": 1.339101637366738,
     "shots_conceded_p90": 8.667501526668694,
@@ -282,10 +371,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 0.7490197011511543
+    "defensive_factor": 0.7490197011511543,
+    "shots_p90_weighted": 12.42164406716368,
+    "avg_opponent_rank": 54.142857142857146,
+    "regression_factor": 0.85,
+    "shots_p90_raw": 12.824809365317492,
+    "shots_p90": 10.558397457089127,
+    "shots_p90_source": "statsbomb"
   },
   "Denmark": {
-    "shots_p90": 12.421987940249902,
     "sot_p90": 3.831241164438009,
     "xg_p90": 0.9226118348757795,
     "shots_conceded_p90": 10.262289221839376,
@@ -297,10 +391,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 0.8868365102005544
+    "defensive_factor": 0.8868365102005544,
+    "shots_p90_weighted": 12.261334282123364,
+    "avg_opponent_rank": 27.5,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 12.421987940249902,
+    "shots_p90": 12.261334282123364,
+    "shots_p90_source": "statsbomb"
   },
   "Ecuador": {
-    "shots_p90": 11.850183171685206,
     "sot_p90": 3.388204308988399,
     "xg_p90": 1.5965918883406562,
     "shots_conceded_p90": 11.774855758767245,
@@ -312,10 +411,15 @@
     "tournaments": [
       "Copa America 2024"
     ],
-    "defensive_factor": 1.0175480113148079
+    "defensive_factor": 1.0175480113148079,
+    "shots_p90_weighted": 11.05461814076134,
+    "avg_opponent_rank": 31.0,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 11.850183171685206,
+    "shots_p90": 11.05461814076134,
+    "shots_p90_source": "statsbomb"
   },
   "Egypt": {
-    "shots_p90": 16.720964005905348,
     "sot_p90": 5.6500731359345995,
     "xg_p90": 2.506029511204288,
     "shots_conceded_p90": 7.558699807630691,
@@ -327,10 +431,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 0.6532003546330887
+    "defensive_factor": 0.6532003546330887,
+    "shots_p90_weighted": 16.720964005905348,
+    "avg_opponent_rank": 76.5,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 16.720964005905348,
+    "shots_p90": 10.032578403543209,
+    "shots_p90_source": "statsbomb"
   },
   "England": {
-    "shots_p90": 9.946819093523462,
     "sot_p90": 3.3434507434355645,
     "xg_p90": 1.226645721373987,
     "shots_conceded_p90": 9.70891446411272,
@@ -342,10 +451,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 0.8390155096063591
+    "defensive_factor": 0.8390155096063591,
+    "shots_p90_weighted": 9.827752190450893,
+    "avg_opponent_rank": 27.571428571428573,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 9.946819093523462,
+    "shots_p90": 9.827752190450893,
+    "shots_p90_source": "statsbomb"
   },
   "Equatorial Guinea": {
-    "shots_p90": 7.178930554454634,
     "sot_p90": 3.229992981751333,
     "xg_p90": 0.959172622450695,
     "shots_conceded_p90": 14.608045203794916,
@@ -357,10 +471,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 1.2623838160608214
+    "defensive_factor": 1.2623838160608214,
+    "shots_p90_weighted": 7.5795496701094125,
+    "avg_opponent_rank": 65.0,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 7.178930554454634,
+    "shots_p90": 4.547729802065647,
+    "shots_p90_source": "statsbomb"
   },
   "France": {
-    "shots_p90": 14.900025562707725,
     "sot_p90": 4.161709386003813,
     "xg_p90": 1.7029735350613022,
     "shots_conceded_p90": 7.740545908661301,
@@ -372,10 +491,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 0.668914953797607
+    "defensive_factor": 0.668914953797607,
+    "shots_p90_weighted": 14.868128614330669,
+    "avg_opponent_rank": 12.833333333333334,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 14.900025562707725,
+    "shots_p90": 14.868128614330669,
+    "shots_p90_source": "statsbomb"
   },
   "Gambia": {
-    "shots_p90": 10.387333396470384,
     "sot_p90": 2.7239505247376314,
     "xg_p90": 0.7816580275678047,
     "shots_conceded_p90": 13.163524739158694,
@@ -387,10 +511,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 1.1375526541164636
+    "defensive_factor": 1.1375526541164636,
+    "shots_p90_weighted": 10.956725375213566,
+    "avg_opponent_rank": 48.0,
+    "regression_factor": 0.85,
+    "shots_p90_raw": 10.387333396470384,
+    "shots_p90": 9.31321656893153,
+    "shots_p90_source": "statsbomb"
   },
   "Georgia": {
-    "shots_p90": 7.046478807899107,
     "sot_p90": 1.8745810439270367,
     "xg_p90": 0.9914069548812873,
     "shots_conceded_p90": 25.175325327478895,
@@ -402,10 +531,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 2.175576732827971
+    "defensive_factor": 2.175576732827971,
+    "shots_p90_weighted": 6.850535221212082,
+    "avg_opponent_rank": 22.5,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 7.046478807899107,
+    "shots_p90": 6.850535221212082,
+    "shots_p90_source": "statsbomb"
   },
   "Germany": {
-    "shots_p90": 17.090172783789818,
     "sot_p90": 6.268720333847925,
     "xg_p90": 1.5910449634154815,
     "shots_conceded_p90": 7.692499570502761,
@@ -417,10 +551,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 0.6647629321639
+    "defensive_factor": 0.6647629321639,
+    "shots_p90_weighted": 17.06644202836916,
+    "avg_opponent_rank": 22.6,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 17.090172783789818,
+    "shots_p90": 17.06644202836916,
+    "shots_p90_source": "statsbomb"
   },
   "Ghana": {
-    "shots_p90": 7.678823505912988,
     "sot_p90": 2.4776094664736426,
     "xg_p90": 1.1419224400805648,
     "shots_conceded_p90": 12.306247938002947,
@@ -432,10 +571,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 1.06346934286122
+    "defensive_factor": 1.06346934286122,
+    "shots_p90_weighted": 7.149198288435943,
+    "avg_opponent_rank": 70.66666666666667,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 7.678823505912988,
+    "shots_p90": 4.289518973061566,
+    "shots_p90_source": "statsbomb"
   },
   "Guinea": {
-    "shots_p90": 7.983753163307429,
     "sot_p90": 2.787392711974877,
     "xg_p90": 1.0019534819152274,
     "shots_conceded_p90": 9.352319254136699,
@@ -447,10 +591,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 0.808199612223895
+    "defensive_factor": 0.808199612223895,
+    "shots_p90_weighted": 6.906716996360424,
+    "avg_opponent_rank": 68.0,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 7.983753163307429,
+    "shots_p90": 4.144030197816254,
+    "shots_p90_source": "statsbomb"
   },
   "Guinea-Bissau": {
-    "shots_p90": 10.671820430655812,
     "sot_p90": 3.460073588111866,
     "xg_p90": 0.5973141531242879,
     "shots_conceded_p90": 9.135610219848106,
@@ -462,10 +611,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 0.7894722620642022
+    "defensive_factor": 0.7894722620642022,
+    "shots_p90_weighted": 10.608829481181683,
+    "avg_opponent_rank": 49.0,
+    "regression_factor": 0.85,
+    "shots_p90_raw": 10.671820430655812,
+    "shots_p90": 9.01750505900443,
+    "shots_p90_source": "statsbomb"
   },
   "Hungary": {
-    "shots_p90": 9.545030049762394,
     "sot_p90": 2.7434163255446653,
     "xg_p90": 1.0331310283054072,
     "shots_conceded_p90": 11.944933728776634,
@@ -477,10 +631,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 1.0322456435998282
+    "defensive_factor": 1.0322456435998282,
+    "shots_p90_weighted": 9.338513913091719,
+    "avg_opponent_rank": 24.666666666666668,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 9.545030049762394,
+    "shots_p90": 9.338513913091719,
+    "shots_p90_source": "statsbomb"
   },
   "Italy": {
-    "shots_p90": 10.607268224551198,
     "sot_p90": 2.107808781309463,
     "xg_p90": 0.7783392191530857,
     "shots_conceded_p90": 11.854621672879494,
@@ -492,10 +651,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 1.0244411443551165
+    "defensive_factor": 1.0244411443551165,
+    "shots_p90_weighted": 9.637033824549396,
+    "avg_opponent_rank": 25.75,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 10.607268224551198,
+    "shots_p90": 9.637033824549396,
+    "shots_p90_source": "statsbomb"
   },
   "Jamaica": {
-    "shots_p90": 8.97880832241045,
     "sot_p90": 2.8643648747800508,
     "xg_p90": 0.6720877101908401,
     "shots_conceded_p90": 19.157590751541132,
@@ -507,10 +671,15 @@
     "tournaments": [
       "Copa America 2024"
     ],
-    "defensive_factor": 1.6555420100411076
+    "defensive_factor": 1.6555420100411076,
+    "shots_p90_weighted": 9.377375924599805,
+    "avg_opponent_rank": 33.0,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 8.97880832241045,
+    "shots_p90": 9.377375924599805,
+    "shots_p90_source": "statsbomb"
   },
   "Mali": {
-    "shots_p90": 11.506960773986979,
     "sot_p90": 3.021288690570696,
     "xg_p90": 1.0458680504489928,
     "shots_conceded_p90": 7.21960019957572,
@@ -522,10 +691,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 0.6238963751293863
+    "defensive_factor": 0.6238963751293863,
+    "shots_p90_weighted": 11.239887153574582,
+    "avg_opponent_rank": 61.2,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 11.506960773986979,
+    "shots_p90": 6.743932292144749,
+    "shots_p90_source": "statsbomb"
   },
   "Mauritania": {
-    "shots_p90": 11.532048068664897,
     "sot_p90": 3.6181686420577517,
     "xg_p90": 0.8439670072866279,
     "shots_conceded_p90": 14.74383382915063,
@@ -537,10 +711,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 1.2741182651717584
+    "defensive_factor": 1.2741182651717584,
+    "shots_p90_weighted": 11.91248847550272,
+    "avg_opponent_rank": 66.0,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 11.532048068664897,
+    "shots_p90": 7.147493085301631,
+    "shots_p90_source": "statsbomb"
   },
   "Mexico": {
-    "shots_p90": 18.029954511834756,
     "sot_p90": 5.650105627146709,
     "xg_p90": 1.3837594995684064,
     "shots_conceded_p90": 9.989017716720289,
@@ -552,10 +731,15 @@
     "tournaments": [
       "Copa America 2024"
     ],
-    "defensive_factor": 0.8632211995521933
+    "defensive_factor": 0.8632211995521933,
+    "shots_p90_weighted": 18.037217190051212,
+    "avg_opponent_rank": 46.666666666666664,
+    "regression_factor": 0.85,
+    "shots_p90_raw": 18.029954511834756,
+    "shots_p90": 15.33163461154353,
+    "shots_p90_source": "statsbomb"
   },
   "Morocco": {
-    "shots_p90": 13.366472376810911,
     "sot_p90": 4.644042820561103,
     "xg_p90": 1.8109365597481348,
     "shots_conceded_p90": 6.670492631021063,
@@ -567,10 +751,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 0.5764441323310255
+    "defensive_factor": 0.5764441323310255,
+    "shots_p90_weighted": 13.152081017901653,
+    "avg_opponent_rank": 81.75,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 13.366472376810911,
+    "shots_p90": 7.891248610740991,
+    "shots_p90_source": "statsbomb"
   },
   "Mozambique": {
-    "shots_p90": 8.672582470533094,
     "sot_p90": 2.47232705288267,
     "xg_p90": 0.8007384161914053,
     "shots_conceded_p90": 12.488126011278993,
@@ -582,10 +771,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 1.07918670497209
+    "defensive_factor": 1.07918670497209,
+    "shots_p90_weighted": 7.837770186233152,
+    "avg_opponent_rank": 56.666666666666664,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 8.672582470533094,
+    "shots_p90": 4.702662111739891,
+    "shots_p90_source": "statsbomb"
   },
   "Namibia": {
-    "shots_p90": 8.031813982333924,
     "sot_p90": 2.1214089271900822,
     "xg_p90": 0.8754918318751704,
     "shots_conceded_p90": 10.201600819159491,
@@ -597,10 +791,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 0.8815919989537131
+    "defensive_factor": 0.8815919989537131,
+    "shots_p90_weighted": 7.730115325112383,
+    "avg_opponent_rank": 59.5,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 8.031813982333924,
+    "shots_p90": 4.6380691950674295,
+    "shots_p90_source": "statsbomb"
   },
   "Netherlands": {
-    "shots_p90": 13.075173154261217,
     "sot_p90": 3.623525227069191,
     "xg_p90": 1.1522752664520433,
     "shots_conceded_p90": 10.205781123962973,
@@ -612,10 +811,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 0.8819532484608508
+    "defensive_factor": 0.8819532484608508,
+    "shots_p90_weighted": 12.240488860135317,
+    "avg_opponent_rank": 24.166666666666668,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 13.075173154261217,
+    "shots_p90": 12.240488860135317,
+    "shots_p90_source": "statsbomb"
   },
   "Nigeria": {
-    "shots_p90": 10.773087186410246,
     "sot_p90": 3.1179992866656745,
     "xg_p90": 1.6353263686093507,
     "shots_conceded_p90": 10.792215958656355,
@@ -627,10 +831,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 0.9326312025719806
+    "defensive_factor": 0.9326312025719806,
+    "shots_p90_weighted": 10.030918370611811,
+    "avg_opponent_rank": 67.85714285714286,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 10.773087186410246,
+    "shots_p90": 6.018551022367086,
+    "shots_p90_source": "statsbomb"
   },
   "Panama": {
-    "shots_p90": 11.902611571326755,
     "sot_p90": 3.572732820038095,
     "xg_p90": 0.7673095245331601,
     "shots_conceded_p90": 9.505904217889773,
@@ -642,10 +851,15 @@
     "tournaments": [
       "Copa America 2024"
     ],
-    "defensive_factor": 0.8214719679653602
+    "defensive_factor": 0.8214719679653602,
+    "shots_p90_weighted": 11.816656041846597,
+    "avg_opponent_rank": 30.75,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 11.902611571326755,
+    "shots_p90": 11.816656041846597,
+    "shots_p90_source": "statsbomb"
   },
   "Paraguay": {
-    "shots_p90": 13.540257751328504,
     "sot_p90": 4.734473986639261,
     "xg_p90": 0.9280845446915237,
     "shots_conceded_p90": 9.501171990991821,
@@ -657,10 +871,15 @@
     "tournaments": [
       "Copa America 2024"
     ],
-    "defensive_factor": 0.821063022992466
+    "defensive_factor": 0.821063022992466,
+    "shots_p90_weighted": 13.173152794264967,
+    "avg_opponent_rank": 23.0,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 13.540257751328504,
+    "shots_p90": 13.173152794264967,
+    "shots_p90_source": "statsbomb"
   },
   "Peru": {
-    "shots_p90": 7.215454402413612,
     "sot_p90": 2.8136866003290586,
     "xg_p90": 0.4443750628680359,
     "shots_conceded_p90": 8.830551691708914,
@@ -672,10 +891,15 @@
     "tournaments": [
       "Copa America 2024"
     ],
-    "defensive_factor": 0.7631100114343775
+    "defensive_factor": 0.7631100114343775,
+    "shots_p90_weighted": 7.1203962494123205,
+    "avg_opponent_rank": 30.666666666666668,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 7.215454402413612,
+    "shots_p90": 7.1203962494123205,
+    "shots_p90_source": "statsbomb"
   },
   "Poland": {
-    "shots_p90": 11.732165645499528,
     "sot_p90": 4.114233900758973,
     "xg_p90": 1.1181821235445197,
     "shots_conceded_p90": 17.414382411546526,
@@ -687,10 +911,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 1.5048991303312498
+    "defensive_factor": 1.5048991303312498,
+    "shots_p90_weighted": 11.544341611059524,
+    "avg_opponent_rank": 11.333333333333334,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 11.732165645499528,
+    "shots_p90": 11.544341611059524,
+    "shots_p90_source": "statsbomb"
   },
   "Portugal": {
-    "shots_p90": 16.098522871416527,
     "sot_p90": 5.188792241938284,
     "xg_p90": 2.3910960564811843,
     "shots_conceded_p90": 9.787645910699842,
@@ -702,10 +931,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 0.8458192470400864
+    "defensive_factor": 0.8458192470400864,
+    "shots_p90_weighted": 15.36987395510043,
+    "avg_opponent_rank": 42.0,
+    "regression_factor": 0.85,
+    "shots_p90_raw": 16.098522871416527,
+    "shots_p90": 13.064392861835366,
+    "shots_p90_source": "statsbomb"
   },
   "Romania": {
-    "shots_p90": 9.08778049511419,
     "sot_p90": 3.5873751979334147,
     "xg_p90": 0.8984769933234831,
     "shots_conceded_p90": 16.733890175640525,
@@ -717,10 +951,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 1.446093015373472
+    "defensive_factor": 1.446093015373472,
+    "shots_p90_weighted": 9.11632952906874,
+    "avg_opponent_rank": 20.0,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 9.08778049511419,
+    "shots_p90": 9.11632952906874,
+    "shots_p90_source": "statsbomb"
   },
   "Scotland": {
-    "shots_p90": 5.33317666251623,
     "sot_p90": 0.957107408720312,
     "xg_p90": 0.3199921888731678,
     "shots_conceded_p90": 14.061646442578391,
@@ -732,10 +971,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 1.2151656603354932
+    "defensive_factor": 1.2151656603354932,
+    "shots_p90_weighted": 5.460316710590822,
+    "avg_opponent_rank": 20.333333333333332,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 5.33317666251623,
+    "shots_p90": 5.460316710590822,
+    "shots_p90_source": "statsbomb"
   },
   "Senegal": {
-    "shots_p90": 10.361503753977164,
     "sot_p90": 3.9502901568547113,
     "xg_p90": 1.8143372188190257,
     "shots_conceded_p90": 7.1510357262421875,
@@ -747,10 +991,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 0.6179712372833931
+    "defensive_factor": 0.6179712372833931,
+    "shots_p90_weighted": 10.22216224064633,
+    "avg_opponent_rank": 73.75,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 10.361503753977164,
+    "shots_p90": 6.133297344387798,
+    "shots_p90_source": "statsbomb"
   },
   "Serbia": {
-    "shots_p90": 8.159637138756375,
     "sot_p90": 1.8792584804818004,
     "xg_p90": 0.6366593454471622,
     "shots_conceded_p90": 8.484936317549602,
@@ -762,10 +1011,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 0.7332429588045583
+    "defensive_factor": 0.7332429588045583,
+    "shots_p90_weighted": 7.471464960649946,
+    "avg_opponent_rank": 27.333333333333332,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 8.159637138756375,
+    "shots_p90": 7.471464960649946,
+    "shots_p90_source": "statsbomb"
   },
   "Slovakia": {
-    "shots_p90": 11.122481217895611,
     "sot_p90": 3.6122061887077415,
     "xg_p90": 0.8286583486457736,
     "shots_conceded_p90": 11.864795776750054,
@@ -777,10 +1031,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 1.0253203601495597
+    "defensive_factor": 1.0253203601495597,
+    "shots_p90_weighted": 10.845259135453627,
+    "avg_opponent_rank": 18.75,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 11.122481217895611,
+    "shots_p90": 10.845259135453627,
+    "shots_p90_source": "statsbomb"
   },
   "Slovenia": {
-    "shots_p90": 8.736223915768578,
     "sot_p90": 2.555517645031631,
     "xg_p90": 1.1875580733561104,
     "shots_conceded_p90": 14.355134602285354,
@@ -792,10 +1051,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 1.2405280341405316
+    "defensive_factor": 1.2405280341405316,
+    "shots_p90_weighted": 8.501577543441796,
+    "avg_opponent_rank": 16.0,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 8.736223915768578,
+    "shots_p90": 8.501577543441796,
+    "shots_p90_source": "statsbomb"
   },
   "South Africa": {
-    "shots_p90": 10.47277018693397,
     "sot_p90": 5.105204290909614,
     "xg_p90": 2.0684669656306847,
     "shots_conceded_p90": 12.716171389422247,
@@ -807,10 +1071,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 1.0988937082486632
+    "defensive_factor": 1.0988937082486632,
+    "shots_p90_weighted": 9.862818669765632,
+    "avg_opponent_rank": 51.714285714285715,
+    "regression_factor": 0.85,
+    "shots_p90_raw": 10.47277018693397,
+    "shots_p90": 8.383395869300788,
+    "shots_p90_source": "statsbomb"
   },
   "Spain": {
-    "shots_p90": 16.113857805069816,
     "sot_p90": 5.65427968366983,
     "xg_p90": 1.3871758134381447,
     "shots_conceded_p90": 9.403528997932066,
@@ -822,10 +1091,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 0.812625005963442
+    "defensive_factor": 0.812625005963442,
+    "shots_p90_weighted": 14.368900384174633,
+    "avg_opponent_rank": 26.0,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 16.113857805069816,
+    "shots_p90": 14.368900384174633,
+    "shots_p90_source": "statsbomb"
   },
   "Switzerland": {
-    "shots_p90": 11.047017782180998,
     "sot_p90": 4.406900381016993,
     "xg_p90": 1.397923808288215,
     "shots_conceded_p90": 11.553611877773616,
@@ -837,10 +1111,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 0.9984287731914012
+    "defensive_factor": 0.9984287731914012,
+    "shots_p90_weighted": 10.944771186321987,
+    "avg_opponent_rank": 18.8,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 11.047017782180998,
+    "shots_p90": 10.944771186321987,
+    "shots_p90_source": "statsbomb"
   },
   "Tanzania": {
-    "shots_p90": 3.750306182457553,
     "sot_p90": 0.6167551824567414,
     "xg_p90": 0.1427786667893248,
     "shots_conceded_p90": 10.94508052038781,
@@ -852,10 +1131,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 0.945841303313515
+    "defensive_factor": 0.945841303313515,
+    "shots_p90_weighted": 3.1245537574344153,
+    "avg_opponent_rank": 54.0,
+    "regression_factor": 0.85,
+    "shots_p90_raw": 3.750306182457553,
+    "shots_p90": 2.655870693819253,
+    "shots_p90_source": "statsbomb"
   },
   "Tunisia": {
-    "shots_p90": 7.807980649431916,
     "sot_p90": 1.8732886084750267,
     "xg_p90": 0.7548910299971583,
     "shots_conceded_p90": 11.198877602189738,
@@ -867,10 +1151,15 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 0.9677736922239071
+    "defensive_factor": 0.9677736922239071,
+    "shots_p90_weighted": 7.73002264421257,
+    "avg_opponent_rank": 69.66666666666667,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 7.807980649431916,
+    "shots_p90": 4.638013586527542,
+    "shots_p90_source": "statsbomb"
   },
   "Turkey": {
-    "shots_p90": 13.42173600967159,
     "sot_p90": 3.915449141971245,
     "xg_p90": 1.204816900134424,
     "shots_conceded_p90": 13.116931532215267,
@@ -882,10 +1171,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 1.1335262077601451
+    "defensive_factor": 1.1335262077601451,
+    "shots_p90_weighted": 12.619170084694245,
+    "avg_opponent_rank": 29.8,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 13.42173600967159,
+    "shots_p90": 12.619170084694245,
+    "shots_p90_source": "statsbomb"
   },
   "Ukraine": {
-    "shots_p90": 12.712226036833757,
     "sot_p90": 3.8091213071291867,
     "xg_p90": 0.945279324770638,
     "shots_conceded_p90": 11.431497106770232,
@@ -897,10 +1191,15 @@
     "tournaments": [
       "UEFA Euro 2024"
     ],
-    "defensive_factor": 0.9878759779018167
+    "defensive_factor": 0.9878759779018167,
+    "shots_p90_weighted": 12.838049542709244,
+    "avg_opponent_rank": 32.333333333333336,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 12.712226036833757,
+    "shots_p90": 12.838049542709244,
+    "shots_p90_source": "statsbomb"
   },
   "United States": {
-    "shots_p90": 10.790072710002258,
     "sot_p90": 3.814171765976239,
     "xg_p90": 1.205800071731615,
     "shots_conceded_p90": 9.804619233283793,
@@ -912,10 +1211,15 @@
     "tournaments": [
       "Copa America 2024"
     ],
-    "defensive_factor": 0.8472860310920136
+    "defensive_factor": 0.8472860310920136,
+    "shots_p90_weighted": 9.293732118442906,
+    "avg_opponent_rank": 48.333333333333336,
+    "regression_factor": 0.85,
+    "shots_p90_raw": 10.790072710002258,
+    "shots_p90": 7.899672300676469,
+    "shots_p90_source": "statsbomb"
   },
   "Uruguay": {
-    "shots_p90": 13.521962435827561,
     "sot_p90": 5.413732221511239,
     "xg_p90": 1.9878001419447549,
     "shots_conceded_p90": 8.70876055953831,
@@ -927,10 +1231,15 @@
     "tournaments": [
       "Copa America 2024"
     ],
-    "defensive_factor": 0.7525851840500842
+    "defensive_factor": 0.7525851840500842,
+    "shots_p90_weighted": 12.732104822279029,
+    "avg_opponent_rank": 34.5,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 13.521962435827561,
+    "shots_p90": 12.732104822279029,
+    "shots_p90_source": "statsbomb"
   },
   "Venezuela": {
-    "shots_p90": 13.413142846263185,
     "sot_p90": 3.5920842605961654,
     "xg_p90": 2.03266236398174,
     "shots_conceded_p90": 12.058808849265432,
@@ -942,10 +1251,15 @@
     "tournaments": [
       "Copa America 2024"
     ],
-    "defensive_factor": 1.0420863928001174
+    "defensive_factor": 1.0420863928001174,
+    "shots_p90_weighted": 12.845827888317784,
+    "avg_opponent_rank": 37.25,
+    "regression_factor": 1.0,
+    "shots_p90_raw": 13.413142846263185,
+    "shots_p90": 12.845827888317784,
+    "shots_p90_source": "statsbomb"
   },
   "Zambia": {
-    "shots_p90": 7.7991970221841695,
     "sot_p90": 2.1767625157221606,
     "xg_p90": 0.41474234536861704,
     "shots_conceded_p90": 16.277064155482126,
@@ -957,6 +1271,102 @@
     "tournaments": [
       "African Cup of Nations 2023"
     ],
-    "defensive_factor": 1.4066154695035
+    "defensive_factor": 1.4066154695035,
+    "shots_p90_weighted": 8.669496227197438,
+    "avg_opponent_rank": 65.0,
+    "regression_factor": 0.6,
+    "shots_p90_raw": 7.7991970221841695,
+    "shots_p90": 5.201697736318462,
+    "shots_p90_source": "statsbomb"
+  },
+  "Australia": {
+    "shots_p90": 9.048711855281969,
+    "shots_p90_source": "fifa_rank_estimate",
+    "fifa_ranking": 23
+  },
+  "Bosnia and Herzegovina": {
+    "shots_p90": 7.691405076989673,
+    "shots_p90_source": "fifa_rank_estimate",
+    "fifa_ranking": 55
+  },
+  "Cape Verde": {
+    "shots_p90": 6.515072535803017,
+    "shots_p90_source": "fifa_rank_estimate",
+    "fifa_ranking": 72
+  },
+  "Curacao": {
+    "shots_p90": 6.515072535803017,
+    "shots_p90_source": "fifa_rank_estimate",
+    "fifa_ranking": 85
+  },
+  "DR Congo": {
+    "shots_p90": 7.691405076989673,
+    "shots_p90_source": "fifa_rank_estimate",
+    "fifa_ranking": 58
+  },
+  "Haiti": {
+    "shots_p90": 6.515072535803017,
+    "shots_p90_source": "fifa_rank_estimate",
+    "fifa_ranking": 108
+  },
+  "Iran": {
+    "shots_p90": 9.048711855281969,
+    "shots_p90_source": "fifa_rank_estimate",
+    "fifa_ranking": 21
+  },
+  "Iraq": {
+    "shots_p90": 6.515072535803017,
+    "shots_p90_source": "fifa_rank_estimate",
+    "fifa_ranking": 62
+  },
+  "Ivory Coast": {
+    "shots_p90": 7.691405076989673,
+    "shots_p90_source": "fifa_rank_estimate",
+    "fifa_ranking": 48
+  },
+  "Japan": {
+    "shots_p90": 9.953583040810166,
+    "shots_p90_source": "fifa_rank_estimate",
+    "fifa_ranking": 17
+  },
+  "Jordan": {
+    "shots_p90": 6.515072535803017,
+    "shots_p90_source": "fifa_rank_estimate",
+    "fifa_ranking": 87
+  },
+  "New Zealand": {
+    "shots_p90": 6.515072535803017,
+    "shots_p90_source": "fifa_rank_estimate",
+    "fifa_ranking": 95
+  },
+  "Norway": {
+    "shots_p90": 9.048711855281969,
+    "shots_p90_source": "fifa_rank_estimate",
+    "fifa_ranking": 34
+  },
+  "Qatar": {
+    "shots_p90": 9.048711855281969,
+    "shots_p90_source": "fifa_rank_estimate",
+    "fifa_ranking": 38
+  },
+  "Saudi Arabia": {
+    "shots_p90": 7.691405076989673,
+    "shots_p90_source": "fifa_rank_estimate",
+    "fifa_ranking": 56
+  },
+  "South Korea": {
+    "shots_p90": 9.048711855281969,
+    "shots_p90_source": "fifa_rank_estimate",
+    "fifa_ranking": 22
+  },
+  "Sweden": {
+    "shots_p90": 9.048711855281969,
+    "shots_p90_source": "fifa_rank_estimate",
+    "fifa_ranking": 25
+  },
+  "Uzbekistan": {
+    "shots_p90": 6.515072535803017,
+    "shots_p90_source": "fifa_rank_estimate",
+    "fifa_ranking": 68
   }
 }

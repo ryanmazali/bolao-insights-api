@@ -6,6 +6,7 @@ separadamente em api/main.py junto com o router de /predict.
 
 import json
 import logging
+import statistics
 from math import exp
 from pathlib import Path
 from typing import Any, Literal
@@ -26,6 +27,7 @@ _player_metrics_data: dict[str, Any] | None = None
 _team_metrics_data: dict[str, Any] | None = None
 _metrics_metadata: dict[str, Any] | None = None
 _global_avg_shots_p90: float = 0.0
+_position_sh_p90_medians: dict[str, float] = {}
 
 STAGE_FACTORS: dict[str, float] = {
     "group": 1.0,
@@ -36,6 +38,21 @@ STAGE_FACTORS: dict[str, float] = {
 }
 
 
+def _compute_position_sh_p90_medians(player_metrics_data: dict[str, Any]) -> dict[str, float]:
+    """Mediana de Sh_p90 por posição (e geral, em "_all"), usada como valor
+    imputado no denominador do share de chutes para jogadores sem Sh_p90
+    próprio (not_found ou 0) — ver BUG 3.
+    """
+    by_pos: dict[str, list[float]] = {}
+    for data in player_metrics_data.values():
+        sh = data.get("Sh_p90")
+        if sh is None:
+            continue
+        by_pos.setdefault(data.get("position"), []).append(sh)
+        by_pos.setdefault("_all", []).append(sh)
+    return {pos: statistics.median(vals) for pos, vals in by_pos.items() if vals}
+
+
 def load_player_metrics() -> None:
     """Carrega os artefatos do pipeline de métricas táticas (data/models/).
 
@@ -44,11 +61,12 @@ def load_player_metrics() -> None:
     endpoint POST /predict/player-metrics responde 503 nesse caso, sem
     derrubar a aplicação.
     """
-    global _player_metrics_data, _team_metrics_data, _metrics_metadata, _global_avg_shots_p90
+    global _player_metrics_data, _team_metrics_data, _metrics_metadata, _global_avg_shots_p90, _position_sh_p90_medians
 
     if _PLAYER_METRICS_PATH.exists():
         with open(_PLAYER_METRICS_PATH, encoding="utf-8") as f:
             _player_metrics_data = json.load(f)
+        _position_sh_p90_medians = _compute_position_sh_p90_medians(_player_metrics_data)
     else:
         logger.warning("Arquivo não encontrado: %s — /predict/player-metrics retornará 503.", _PLAYER_METRICS_PATH)
 
@@ -114,6 +132,38 @@ class PlayerMetricsResponse(BaseModel):
 
 # ── Lógica de cálculo ────────────────────────────────────────────────────────
 
+_SHARE_CAP = 0.35
+
+
+def _normalize_shares_with_cap(shares: dict[str, float], cap: float = _SHARE_CAP, max_iter: int = 10) -> dict[str, float]:
+    """Aplica um teto de `cap` (35%) ao share de chutes de cada jogador,
+    redistribuindo o excesso proporcionalmente entre os demais jogadores
+    do time até convergir (máx. `max_iter` iterações).
+
+    Evita que um ou dois jogadores concentrem uma fração irreal dos
+    chutes esperados do time.
+    """
+    shares = dict(shares)
+    for _ in range(max_iter):
+        over = {pid: s for pid, s in shares.items() if s > cap}
+        if not over:
+            break
+
+        excess = sum(s - cap for s in over.values())
+        for pid in over:
+            shares[pid] = cap
+
+        under = {pid: s for pid, s in shares.items() if pid not in over}
+        under_total = sum(under.values())
+        if under_total <= 0:
+            break
+
+        for pid, s in under.items():
+            shares[pid] = s + excess * (s / under_total)
+
+    return shares
+
+
 def _not_found_projection(player_id: str) -> PlayerProjection:
     return PlayerProjection(
         player_id=player_id,
@@ -139,10 +189,35 @@ def _project_side(
 
     defensive_factor = opp_data.get("defensive_factor", 1.0) if opp_data else 1.0
     team_shots_p90 = team_data.get("shots_p90", _global_avg_shots_p90) if team_data else _global_avg_shots_p90
-    team_shots_expected = team_shots_p90 * defensive_factor
+    team_shots_expected = team_shots_p90 * (1 + (defensive_factor - 1) * 0.3)
 
     players_data = [_player_metrics_data.get(pid) for pid in player_ids]
-    sum_sh = sum((p.get("Sh_p90") or 0) for p in players_data if p is not None)
+
+    # Jogadores sem Sh_p90 próprio (not_found ou 0) entram no denominador
+    # com a mediana de Sh_p90 da posição, para evitar que os poucos
+    # jogadores com Sh_p90 > 0 absorvam 100% dos chutes esperados do time.
+    sum_sh = 0.0
+    for data in players_data:
+        if data is None:
+            sum_sh += _position_sh_p90_medians.get("_all", 0.0)
+            continue
+        sh = data.get("Sh_p90") or 0
+        if sh > 0:
+            sum_sh += sh
+        else:
+            pos = data.get("position")
+            sum_sh += _position_sh_p90_medians.get(pos, _position_sh_p90_medians.get("_all", 0.0))
+
+    # Share bruto de cada jogador (Sh_p90 / sum_sh), com teto de
+    # _SHARE_CAP e redistribuição do excesso entre os demais titulares —
+    # evita que 1-2 jogadores concentrem uma fração irreal dos chutes
+    # esperados do time.
+    raw_shares = {
+        pid: (data.get("Sh_p90") or 0) / sum_sh if sum_sh > 0 else 0
+        for pid, data in zip(player_ids, players_data)
+        if data is not None
+    }
+    shares = _normalize_shares_with_cap(raw_shares)
 
     projections = []
     for pid, data in zip(player_ids, players_data):
@@ -157,7 +232,7 @@ def _project_side(
         fls = data.get("Fls_p90") or 0
         recov = data.get("Recov_p90") or 0
 
-        share = sh / sum_sh if sum_sh > 0 else 0
+        share = shares[pid]
         shots_expected = share * team_shots_expected
 
         if sh == 0:
@@ -235,6 +310,11 @@ def player_metrics(req: PlayerMetricsRequest) -> PlayerMetricsResponse:
     shots_expected, sot_expected e xg_expected dependem apenas do volume
     ofensivo do time e do defensive_factor do adversário — não são
     afetados pela fase da competição.
+
+    O share de chutes de cada jogador (Sh_p90 / soma do time) tem um teto
+    de 35% (_SHARE_CAP); o excesso é redistribuído proporcionalmente entre
+    os demais titulares, para evitar que 1-2 jogadores concentrem uma
+    fração irreal dos chutes esperados do time.
     """
     if _player_metrics_data is None or _team_metrics_data is None or _metrics_metadata is None:
         raise HTTPException(
@@ -254,8 +334,8 @@ def player_metrics(req: PlayerMetricsRequest) -> PlayerMetricsResponse:
 
     metadata = {
         "generated_at": _metrics_metadata.get("generated_at"),
-        "home_team_statsbomb": req.home_team in _team_metrics_data,
-        "away_team_statsbomb": req.away_team in _team_metrics_data,
+        "home_team_statsbomb": _team_metrics_data.get(req.home_team, {}).get("shots_p90_source") == "statsbomb",
+        "away_team_statsbomb": _team_metrics_data.get(req.away_team, {}).get("shots_p90_source") == "statsbomb",
         "global_avg_shots_p90": _global_avg_shots_p90,
     }
 

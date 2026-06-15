@@ -158,6 +158,49 @@ agg['Save%'] = agg['_Save%']
 agg['CS%'] = agg['_CS%']
 agg['CS'] = agg['_CS']
 
+# ── 5b. Diagnóstico Sh_p90 — Salah e Marmoush ───────────────────────────
+print("\n=== DIAGNÓSTICO Sh_p90 — Salah e Marmoush ===")
+for diag_name in ['Mohamed Salah', 'Omar Marmoush']:
+    pre_rows = df[df['Player'] == diag_name]
+    post_row = agg[agg['Player'] == diag_name]
+    print(f"  {diag_name}:")
+    print(f"    Linhas antes da deduplicação: {len(pre_rows)}")
+    if post_row.empty:
+        print("    Não encontrado em 'agg' (removido pelo filtro de minutos mínimos)")
+        continue
+    r = post_row.iloc[0]
+    print(f"    Min total (pós soma): {r['Min']:.0f}")
+    print(f"    90s calculado (Min/90): {r['90s']:.4f}")
+    print(f"    Sh total (pós soma): {r['_Sh']:.0f}")
+    print(f"    Sh_p90 = Sh/90s = {r['Sh_p90']:.4f}")
+
+# ── 5c. Validação de sanidade dos _p90 ──────────────────────────────────
+SH_P90_THRESHOLDS = {'FW': 6, 'MF': 4, 'DF': 2}
+XG_P90_THRESHOLD = 1.5
+
+print("\n=== VALIDAÇÃO DE SANIDADE (_p90) ===")
+n_suspicious = 0
+for _, row in agg.iterrows():
+    pos = row['Pos']
+    sh_threshold = SH_P90_THRESHOLDS.get(pos)
+    if sh_threshold is not None and row['Sh_p90'] > sh_threshold:
+        print(
+            f"  WARNING: {row['Player']} ({row['Squad']}, {pos}) — "
+            f"Sh_p90={row['Sh_p90']:.2f} > {sh_threshold} (suspeito para {pos})"
+        )
+        n_suspicious += 1
+    if row['xG_p90'] > XG_P90_THRESHOLD:
+        print(
+            f"  WARNING: {row['Player']} ({row['Squad']}, {pos}) — "
+            f"xG_p90={row['xG_p90']:.2f} > {XG_P90_THRESHOLD}"
+        )
+        n_suspicious += 1
+
+if n_suspicious == 0:
+    print("  Nenhum valor suspeito encontrado.")
+else:
+    print(f"\n  Total de valores suspeitos: {n_suspicious}")
+
 # ── 6. Medianas por liga/posição (fallback Camada B) ────────────────────
 P90_COLS = list(P90_SOURCE.keys()) + ['GA_p90']
 GK_EXTRA = ['Save%', 'CS%']

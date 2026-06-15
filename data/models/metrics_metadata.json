@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-06-15T13:49:08.388911+00:00",
+  "generated_at": "2026-06-15T20:05:34.592300+00:00",
   "tournaments_used": [
     "African Cup of Nations 2023",
     "Copa America 2024",
     "UEFA Euro 2024"
   ],
   "n_teams_with_statsbomb": 64,
-  "n_players_fbref": 436,
-  "n_players_fbref_median": 40,
-  "n_players_fm23_fallback": 434,
-  "n_players_fm23_median_fallback": 361,
-  "global_avg_shots_p90": 10.90909920325695,
+  "n_players_fbref": 424,
+  "n_players_fbref_median": 43,
+  "n_players_fm23_fallback": 438,
+  "n_players_fm23_median_fallback": 366,
+  "global_avg_shots_p90": 9.048711855281969,
   "global_avg_xg_conceded_p90": 1.3018757705551645
 }

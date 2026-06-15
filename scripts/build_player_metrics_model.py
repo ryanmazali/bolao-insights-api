@@ -31,6 +31,8 @@ FBREF_PATH = 'data/processed/fbref_players_per90.csv'
 FBREF_MEDIANS_PATH = 'data/processed/fbref_medians.json'
 FM23_RAW_PATH = 'data/raw/merged_players (1).csv'
 FM23_MAPPING_PATH = 'data/processed/fm23_player_mapping.csv'
+FIFA_RANKINGS_PATH = 'data/fifa_rankings.json'
+FIFA_RANKING_FULL_PATH = 'data/raw/fifa_ranking-2024-04-04.csv'
 
 OUT_TEAM_AGG = 'data/processed/team_aggregated_stats.csv'
 OUT_PLAYER_MAPPING = 'data/processed/player_fbref_mapping.json'
@@ -42,6 +44,14 @@ OUT_METADATA = MODELS_DIR / 'metrics_metadata.json'
 
 TOP5_LEAGUES = ['Premier League', 'La Liga', 'Serie A', 'Bundesliga', 'Ligue 1']
 FM23_ATTRS = ['Fin', 'OtB', 'Tck', 'Mar', 'Agg']
+
+# Snapshot do player_metrics_data.json anterior (antes da recalibração de
+# Sh_p90 para source=fm23/fm23_median) — usado para imprimir antes/depois.
+if OUT_PLAYER_METRICS.exists():
+    with open(OUT_PLAYER_METRICS, encoding='utf-8') as f:
+        old_player_metrics_data = json.load(f)
+else:
+    old_player_metrics_data = {}
 
 supabase = create_client(os.getenv('SUPABASE_URL'), os.getenv('SUPABASE_SERVICE_KEY'))
 
@@ -62,6 +72,85 @@ COUNTRY_TO_STATSBOMB = {
     'POR': 'Portugal', 'COD': 'DR Congo', 'UZB': 'Uzbekistan', 'COL': 'Colombia',
     'ENG': 'England', 'CRO': 'Croatia', 'GHA': 'Ghana', 'PAN': 'Panama',
 }
+
+
+# Compatibilidade de posição entre Supabase (convocação) e FBref (match
+# por nome). GK só pode casar com GK; demais posições aceitam a vizinhança
+# tática mais próxima (ex.: FW casa com FW/MF, mas não com DF).
+POSITION_COMPAT = {
+    'GK': {'GK'},
+    'FW': {'FW', 'MF'},
+    'MF': {'MF', 'FW', 'DF'},
+    'DF': {'DF', 'MF'},
+}
+
+
+def positions_compatible(supabase_pos, fbref_pos) -> bool:
+    return fbref_pos in POSITION_COMPAT.get(supabase_pos, {supabase_pos})
+
+
+# Nomes de seleções da Copa 2026 (COUNTRY_TO_STATSBOMB) que aparecem com
+# grafia diferente em data/fifa_rankings.json.
+FIFA_NAME_ALIASES = {
+    'Bosnia and Herzegovina': 'Bosnia-Herzegovina',
+}
+
+
+def fifa_shots_p90_factor(rank: int) -> float:
+    """Fator de ajuste de shots_p90 (sobre a média global) com base no
+    ranking FIFA, para seleções sem dados StatsBomb (Nível 1 do endpoint
+    /predict/player-metrics)."""
+    if rank <= 20:
+        return 1.10
+    if rank <= 40:
+        return 1.0
+    if rank <= 60:
+        return 0.85
+    return 0.72
+
+
+# Nomes de adversários (StatsBomb, team_stats_statsbomb.csv) que aparecem
+# com grafia diferente em data/raw/fifa_ranking-2024-04-04.csv.
+OPPONENT_FIFA_NAME_ALIASES = {
+    'Cape Verde Islands': 'Cabo Verde',
+    'Czech Republic': 'Czechia',
+    'Gambia': 'The Gambia',
+    'United States': 'USA',
+}
+
+# Peso da força do adversário na agregação de shots_p90 por time
+# (PARTE A). Adversário fraco pesa menos — evita que seleções de
+# torneios continentais (ex.: AFCON) com calendário pesado contra
+# seleções fracas tenham shots_p90 inflado.
+DEFAULT_OPPONENT_WEIGHT = 0.6
+
+
+def fifa_opponent_weight(rank: float | None) -> float:
+    """Peso do jogo na média de shots_p90, com base no ranking FIFA do
+    adversário: adversário top-20 pesa 1.0, top-40 pesa 0.8, top-60 pesa
+    0.6, e acima de 60 (ou ranking desconhecido) pesa 0.4/0.6."""
+    if rank is None or pd.isna(rank):
+        return DEFAULT_OPPONENT_WEIGHT
+    if rank <= 20:
+        return 1.0
+    if rank <= 40:
+        return 0.8
+    if rank <= 60:
+        return 0.6
+    return 0.4
+
+
+def shots_p90_regression_factor(avg_opponent_rank: float) -> float:
+    """Fator de regressão sobre shots_p90_weighted, com base no ranking
+    FIFA médio dos adversários enfrentados pelo time: times cuja amostra
+    é dominada por adversários fracos (avg_opponent_rank alto) têm
+    shots_p90 puxado para baixo, por ser uma amostra menos confiável para
+    projetar jogos de Copa do Mundo."""
+    if avg_opponent_rank < 40:
+        return 1.0
+    if avg_opponent_rank <= 55:
+        return 0.85
+    return 0.60
 
 
 def normalize_name(name) -> str:
@@ -118,10 +207,72 @@ team_agg = team_agg.merge(n_games, on='team').merge(tournaments, on='team')
 global_avg_shots_conceded = team_agg['shots_conceded_p90'].mean()
 team_agg['defensive_factor'] = team_agg['shots_conceded_p90'] / global_avg_shots_conceded
 
+# -- shots_p90_weighted: pondera cada jogo pela força do adversário (ranking
+# FIFA), para que jogos contra seleções fracas (comuns em torneios
+# continentais como a AFCON) pesem menos na média de shots_p90 do time. --
+fifa_ranking_full = pd.read_csv(FIFA_RANKING_FULL_PATH)
+fifa_ranking_latest = fifa_ranking_full[fifa_ranking_full['rank_date'] == fifa_ranking_full['rank_date'].max()]
+fifa_rank_by_name = fifa_ranking_latest.set_index('country_full')['rank'].to_dict()
+
+team_games['opp_fifa_name'] = team_games['opponent'].map(lambda o: OPPONENT_FIFA_NAME_ALIASES.get(o, o))
+team_games['opp_fifa_rank'] = team_games['opp_fifa_name'].map(fifa_rank_by_name)
+team_games['opp_weight'] = team_games['opp_fifa_rank'].apply(fifa_opponent_weight)
+
+unranked_opponents = sorted(set(team_games.loc[team_games['opp_fifa_rank'].isna(), 'opponent']))
+if unranked_opponents:
+    print(f"\nAdversários sem ranking FIFA em {FIFA_RANKING_FULL_PATH} "
+          f"(peso default={DEFAULT_OPPONENT_WEIGHT}): {unranked_opponents}")
+
+team_games['_w_shots'] = team_games['shots_p90'] * team_games['opp_weight']
+shots_weighted = (
+    team_games.groupby('team')
+    .apply(lambda g: g['_w_shots'].sum() / g['opp_weight'].sum(), include_groups=False)
+    .rename('shots_p90_weighted').reset_index()
+)
+team_agg = team_agg.merge(shots_weighted, on='team')
+
+# -- shots_p90_final: regressão adicional com base no ranking FIFA médio
+# dos adversários enfrentados pelo time (amostras dominadas por
+# adversários fracos são puxadas para baixo). --
+avg_opponent_rank = (
+    team_games.groupby('team')['opp_fifa_rank'].mean()
+    .rename('avg_opponent_rank').reset_index()
+)
+team_agg = team_agg.merge(avg_opponent_rank, on='team')
+team_agg['regression_factor'] = team_agg['avg_opponent_rank'].apply(shots_p90_regression_factor)
+team_agg['shots_p90_final'] = team_agg['shots_p90_weighted'] * team_agg['regression_factor']
+
 team_agg.to_csv(OUT_TEAM_AGG, index=False)
 
 print(f"Times agregados: {len(team_agg)}")
 print(f"Média global shots_conceded_p90: {global_avg_shots_conceded:.2f}")
+
+# -- Antes/depois da ponderação por força do adversário --
+print('\n-- shots_p90 antes/depois da ponderação por ranking FIFA do adversário --')
+weighting_diff = (team_agg['shots_p90'] - team_agg['shots_p90_weighted']).abs()
+most_affected = team_agg.assign(diff=weighting_diff).sort_values('diff', ascending=False).head(8)
+print(most_affected[['team', 'shots_p90', 'shots_p90_weighted', 'diff']].to_string(index=False))
+
+print('\n-- Destaques AFCON (Egito, Costa do Marfim, Nigéria) --')
+for team_name in ['Egypt', "Côte d'Ivoire", 'Nigeria']:
+    row = team_agg[team_agg['team'] == team_name]
+    if row.empty:
+        print(f"  {team_name}: não encontrado em team_agg")
+        continue
+    r = row.iloc[0]
+    games = team_games[team_games['team'] == team_name][['opponent', 'opp_fifa_rank', 'opp_weight', 'shots_p90']]
+    print(
+        f"\n  {team_name}: shots_p90 (antes)={r['shots_p90']:.2f}  ->  "
+        f"shots_p90_weighted={r['shots_p90_weighted']:.2f}  ->  "
+        f"shots_p90_final={r['shots_p90_final']:.2f}  "
+        f"(avg_opponent_rank={r['avg_opponent_rank']:.1f}, regression_factor={r['regression_factor']:.2f})"
+    )
+    print(games.to_string(index=False))
+
+# -- Times afetados pela regressão por ranking médio dos adversários --
+print('\n-- Times com regression_factor < 1.0 (avg_opponent_rank >= 40) --')
+regressed = team_agg[team_agg['regression_factor'] < 1.0].sort_values('avg_opponent_rank')
+print(regressed[['team', 'avg_opponent_rank', 'regression_factor', 'shots_p90_weighted', 'shots_p90_final']].to_string(index=False))
 
 print('\n-- Top 5 defesas mais fortes (defensive_factor menor) --')
 print(team_agg.sort_values('defensive_factor').head(5)[
@@ -209,18 +360,24 @@ fm23_pos_medians = matched_fm23.groupby('position')[FM23_ATTRS].median()
 fm23_global_median = matched_fm23[FM23_ATTRS].median()
 
 
+FBREF_GLOBAL_SH_P90_MEDIAN = {pos: vals['Sh_p90'] for pos, vals in fbref_medians['global'].items()}
+
+
 def fm23_estimate(attrs, position) -> dict:
-    """Converte atributos FM23 (escala 1-20) em estimativas de métricas p90."""
+    """Converte atributos FM23 (escala 1-20) em estimativas de métricas p90.
+
+    Sh_p90 é calibrado contra a mediana real do FBref por posição: um
+    jogador com fm23_score (Fin/OtB normalizados) = 0.5 tem Sh_p90 igual
+    à mediana FBref da posição; acima/abaixo de 0.5 escala
+    proporcionalmente. GK sempre tem Sh_p90 = 0.
+    """
     fin, otb, tck, mar, agg = attrs['Fin'], attrs['OtB'], attrs['Tck'], attrs['Mar'], attrs['Agg']
 
-    if position == 'FW':
-        sh_p90 = (fin + otb) / 200 * 3.5
-    elif position == 'MF':
-        sh_p90 = (fin + otb) / 200 * 2.0
-    elif position == 'DF':
-        sh_p90 = (fin + otb) / 200 * 0.8
-    else:
+    if position == 'GK':
         sh_p90 = 0.0
+    else:
+        fm23_score = (fin * 0.6 + otb * 0.4) / 20
+        sh_p90 = fm23_score * FBREF_GLOBAL_SH_P90_MEDIAN[position] * 2
 
     xg_p90 = sh_p90 * (fin / 200)
 
@@ -244,6 +401,8 @@ def fm23_estimate(attrs, position) -> dict:
 mapping = {}
 counts = {'fbref': 0, 'fbref_median': 0, 'fm23': 0, 'fm23_median': 0}
 unmatched_log = []
+position_mismatch_log = []
+gk_sh_fix_log = []
 
 for _, p in players_df.iterrows():
     pid, name, pos, country, norm = p['id'], p['name'], p['position'], p['country_code'], p['norm_name']
@@ -254,13 +413,39 @@ for _, p in players_df.iterrows():
     if not candidates.empty:
         exact = candidates[candidates['norm_name'] == norm]
         if not exact.empty:
-            row = exact.sort_values('Min', ascending=False).iloc[0]
+            # Entre matches exatos por nome, prioriza candidatos com
+            # posição compatível antes de desempatar por minutos (evita
+            # casar com um homônimo de posição diferente que tenha mais Min).
+            compat_exact = exact[exact['Pos'].apply(lambda fp: positions_compatible(pos, fp))]
+            if not compat_exact.empty:
+                row = compat_exact.sort_values('Min', ascending=False).iloc[0]
+            else:
+                row = exact.sort_values('Min', ascending=False).iloc[0]
         else:
             result = process.extractOne(
                 norm, candidates['norm_name'].tolist(), scorer=fuzz.WRatio, score_cutoff=85,
             )
             if result is not None:
                 row = candidates.iloc[result[2]]
+
+    # BUG 4 — valida compatibilidade de posição entre Supabase e FBref;
+    # descarta o match (cai no fallback) se incompatível.
+    mismatch_entry = None
+    if row is not None and not positions_compatible(pos, row['Pos']):
+        mismatch_entry = {
+            'name': name, 'position': pos, 'team': p['team_name'],
+            'fbref_name': row['Player'], 'fbref_squad': row['Squad'],
+            'fbref_comp': row['Comp'], 'fbref_pos': row['Pos'], 'fbref_min': int(row['Min']),
+        }
+        position_mismatch_log.append(mismatch_entry)
+        row = None
+
+    if name == 'Mohamed Salah' and row is not None:
+        print(
+            f"\n[BUG4 check] Mohamed Salah casou com FBref: "
+            f"fbref_name={row['Player']!r}, Squad={row['Squad']!r}, "
+            f"Comp={row['Comp']!r}, Pos={row['Pos']!r}, Min={int(row['Min'])}"
+        )
 
     if row is not None:
         # Nível 1 — FBref individual
@@ -272,6 +457,18 @@ for _, p in players_df.iterrows():
         for col in METRIC_COLS:
             val = row[col] if col in row.index else np.nan
             entry[col] = None if pd.isna(val) else float(val)
+
+        # BUG 1 — GK não pode ter Sh_p90/xG_p90 herdados de um match errado.
+        if pos == 'GK' and (entry.get('Sh_p90') or 0) > 0.1:
+            print(
+                f"WARNING: GK {name} ({p['team_name']}) tem Sh_p90="
+                f"{entry['Sh_p90']:.2f} (fbref_name={entry['fbref_name']!r}) "
+                f"— forçando Sh_p90=0, xG_p90=0"
+            )
+            entry['Sh_p90'] = 0.0
+            entry['xG_p90'] = 0.0
+            gk_sh_fix_log.append(name)
+
         counts['fbref'] += 1
     else:
         # Tenta Nível 2 — mediana FBref por liga/posição, via clube do FM23
@@ -314,9 +511,27 @@ for _, p in players_df.iterrows():
 
     mapping[pid] = entry
 
+    if mismatch_entry is not None:
+        mismatch_entry['fallback_used'] = entry['source']
+
 print('\n-- Resultado do mapeamento por nível de fallback --')
 for k, v in counts.items():
     print(f"  {k:<14}: {v}")
+
+if gk_sh_fix_log:
+    print("\n-- BUG 1: GKs com Sh_p90/xG_p90 zerados (match com Sh_p90 > 0.1) --")
+    for n in gk_sh_fix_log:
+        print(f"  - {n}")
+
+if position_mismatch_log:
+    print(f"\n-- BUG 4: Matches descartados por incompatibilidade de posição ({len(position_mismatch_log)}) --")
+    for m in position_mismatch_log:
+        print(
+            f"  - {m['name']} ({m['team']}, pos={m['position']}) "
+            f"<x> FBref {m['fbref_name']!r} (Squad={m['fbref_squad']!r}, Comp={m['fbref_comp']!r}, "
+            f"Pos={m['fbref_pos']!r}, Min={m['fbref_min']}) "
+            f"-> fallback usado: {m['fallback_used']}"
+        )
 
 if unmatched_log:
     print(f"\nJogadores em Nível 4 (fm23_median, confidence=low): {len(unmatched_log)}")
@@ -342,6 +557,17 @@ for level in ['fbref', 'fm23', 'fm23_median']:
         print(f"\n[{level}] {example['name']} ({example['team']}, {example['position']}):")
         print(json.dumps(example, indent=2, ensure_ascii=False))
 
+# -- Recalibração de Sh_p90 (fm23 / fm23_median) -- antes/depois (Egito) --
+print('\n-- Sh_p90 antes/depois da recalibração FM23 vs mediana FBref (Egito, fm23/fm23_median) --')
+for pid, entry in mapping_native.items():
+    if entry['country_code'] != 'EGY' or entry['source'] not in ('fm23', 'fm23_median'):
+        continue
+    old_sh = old_player_metrics_data.get(pid, {}).get('Sh_p90')
+    new_sh = entry['Sh_p90']
+    old_str = f"{old_sh:.3f}" if old_sh is not None else "n/a"
+    print(f"  {entry['name']:<24} pos={entry['position']:<3} source={entry['source']:<12} "
+          f"Sh_p90 antes={old_str:>6}  ->  depois={new_sh:.3f}")
+
 
 # ════════════════════════════════════════════════════════════════════
 # PARTE C — Salva artefatos finais
@@ -357,12 +583,45 @@ with open(OUT_PLAYER_METRICS, 'w', encoding='utf-8') as f:
     json.dump(mapping_native, f, indent=2, ensure_ascii=False)
 
 # team_metrics_data.json (== team_aggregated_stats.csv como JSON)
+# shots_p90 usa shots_p90_final (ponderado por força do adversário e
+# regredido pelo ranking FIFA médio dos adversários); shots_p90_raw
+# guarda a média simples original e shots_p90_weighted o valor
+# intermediário (sem a regressão por avg_opponent_rank).
+global_avg_shots_p90 = float(team_agg['shots_p90_final'].mean())
+
 team_metrics = {}
 for _, r in team_agg.iterrows():
-    team_metrics[r['team']] = to_native({k: v for k, v in r.items() if k != 'team'})
+    entry = to_native({k: v for k, v in r.items() if k != 'team'})
+    entry['shots_p90_raw'] = entry.pop('shots_p90')
+    entry['shots_p90'] = entry.pop('shots_p90_final')
+    entry['shots_p90_source'] = 'statsbomb'
+    team_metrics[r['team']] = entry
+
+# Nível 1 — para seleções da Copa 2026 sem dados StatsBomb, estima
+# shots_p90 a partir do ranking FIFA (em vez de usar sempre a média
+# global, que superestima times medianos/fracos).
+with open(FIFA_RANKINGS_PATH, encoding='utf-8') as f:
+    fifa_rankings = json.load(f)
+
+statsbomb_teams = set(team_agg['team'])
+fifa_estimate_log = []
+for team_name in sorted(set(COUNTRY_TO_STATSBOMB.values())):
+    if team_name in statsbomb_teams:
+        continue
+    fifa_key = FIFA_NAME_ALIASES.get(team_name, team_name)
+    rank = fifa_rankings.get(fifa_key)
+    if rank is None:
+        continue
+    shots_p90_est = global_avg_shots_p90 * fifa_shots_p90_factor(rank)
+    team_metrics[team_name] = {
+        'shots_p90': shots_p90_est,
+        'shots_p90_source': 'fifa_rank_estimate',
+        'fifa_ranking': rank,
+    }
+    fifa_estimate_log.append((team_name, rank, shots_p90_est))
 
 with open(OUT_TEAM_METRICS, 'w', encoding='utf-8') as f:
-    json.dump(team_metrics, f, indent=2, ensure_ascii=False)
+    json.dump(to_native(team_metrics), f, indent=2, ensure_ascii=False)
 
 metadata = {
     'generated_at': datetime.now(timezone.utc).isoformat(),
@@ -372,7 +631,7 @@ metadata = {
     'n_players_fbref_median': counts['fbref_median'],
     'n_players_fm23_fallback': counts['fm23'],
     'n_players_fm23_median_fallback': counts['fm23_median'],
-    'global_avg_shots_p90': float(team_agg['shots_p90'].mean()),
+    'global_avg_shots_p90': global_avg_shots_p90,
     'global_avg_xg_conceded_p90': float(team_agg['xg_conceded_p90'].mean()),
 }
 
@@ -384,6 +643,14 @@ print(f"Salvo: {OUT_TEAM_METRICS}")
 print(f"Salvo: {OUT_METADATA}")
 print('\nmetrics_metadata.json:')
 print(json.dumps(metadata, indent=2, ensure_ascii=False))
+
+print(f"\n-- Nível 1: shots_p90 estimado via ranking FIFA ({len(fifa_estimate_log)} seleções sem StatsBomb) --")
+for team_name, rank, shots_p90_est in sorted(fifa_estimate_log, key=lambda x: x[1]):
+    print(f"  {team_name:<25} FIFA #{rank:<4} -> shots_p90={shots_p90_est:.2f} (global_avg={global_avg_shots_p90:.2f})")
+
+teams_without_estimate = sorted(set(COUNTRY_TO_STATSBOMB.values()) - statsbomb_teams - {t for t, _, _ in fifa_estimate_log})
+if teams_without_estimate:
+    print(f"\n  Sem StatsBomb e sem ranking FIFA (usarão global_avg_shots_p90): {teams_without_estimate}")
 
 
 # ── Resumo final de cobertura por seleção da Copa 2026 ──────────────
