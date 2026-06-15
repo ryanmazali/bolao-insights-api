@@ -207,6 +207,12 @@ def predict_scorers(home_team: str,
             # Atributos FM23 do jogador (pelo supabase_id)
             fm23_attrs = get_fm23_attributes(player['id'])
 
+            # Score de qualidade intrínseca a partir dos atributos FM23
+            # chave para finalizadores (escala 0-1).
+            fm23_score = sum(
+                fm23_attrs.get(attr, 0.0) for attr in ('Fin', 'OtB', 'Pac', 'Ant')
+            ) / (20 * 4)
+
             # Position weight
             position_weight = {
                 'FW': 1.0, 'MF': 0.5, 'DF': 0.15, 'GK': 0.01
@@ -237,11 +243,21 @@ def predict_scorers(home_team: str,
                 if position == 'GK':
                     prob = min(prob, 0.005)
 
+                # Sem histórico: componentes de forma ficam zerados, o score
+                # composto passa a depender de qualidade FM23 + prob baseline.
+                composite_score = (
+                    0.35 * fm23_score +
+                    0.30 * 0.0 +
+                    0.20 * 0.0 +
+                    0.15 * prob
+                )
+
                 team_results.append({
                     'player': player_name_supabase,
                     'position': position,
                     'probability': round(prob, 4),
                     'probability_pct': round(prob * 100, 1),
+                    'composite_score': round(composite_score, 4),
                     'has_history': False,
                 })
                 continue
@@ -250,6 +266,13 @@ def predict_scorers(home_team: str,
                 last = player_history.sort_values('date').iloc[-1]
                 features = {col: last[col] for col in SCORER_FEATURES
                            if col in last.index}
+
+                # Histórico geral e forma recente para o score composto
+                hist_score = float(last['scoring_rate'])
+                recent_score = (
+                    float(last['scoring_rate_last_24m']) * 0.6 +
+                    float(last['scoring_rate_last_12m']) * 0.4
+                )
 
                 # Atualizar contexto da partida atual
                 features.update({
@@ -275,16 +298,28 @@ def predict_scorers(home_team: str,
             if position == 'GK':
                 prob = min(prob, 0.005)
 
+            # Score composto: pondera qualidade FM23, histórico geral, forma
+            # recente e a probabilidade do XGBoost (componente menor).
+            composite_score = (
+                0.35 * fm23_score +
+                0.30 * hist_score +
+                0.20 * recent_score +
+                0.15 * prob
+            )
+
             team_results.append({
                 'player': player_name_supabase,
                 'position': position,
                 'probability': round(prob, 4),
                 'probability_pct': round(prob * 100, 1),
+                'composite_score': round(composite_score, 4),
                 'has_history': len(player_history) > 0,
             })
 
-        # Ordenar por probabilidade e retornar top N
-        team_results.sort(key=lambda x: x['probability'], reverse=True)
+        # Ordenar pelo score composto (qualidade + forma) e retornar top N.
+        # 'probability' segue como raw_prob do XGBoost, mantendo a calibração
+        # exibida ao usuário.
+        team_results.sort(key=lambda x: x['composite_score'], reverse=True)
         results[team_en] = team_results[:top_n]
 
     return results

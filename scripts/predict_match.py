@@ -1,8 +1,12 @@
 import requests
+import json
 
-response = requests.post('http://127.0.0.1:8000/predict', json={
-    "home_team": "Curacao",
-    "away_team": "Germany"
-})
+print("=== Previsão de Partida ===")
+home = input("Seleção da casa: ")
+away = input("Seleção visitante: ")
 
-print(response.json())
+url = "https://bolao-insights-api.onrender.com/predict"
+response = requests.post(url, json={"home_team": home, "away_team": away})
+
+data = response.json()
+print(json.dumps(data, indent=2, ensure_ascii=False))
