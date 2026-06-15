@@ -42,6 +42,9 @@ data/processed/*
 !src/models/saved/feature_columns.json
 !src/models/saved/feature_columns_v2.json
 !src/models/saved/scorer_feature_columns_v1.json
+!data/models/player_metrics_data.json
+!data/models/team_metrics_data.json
+!data/models/metrics_metadata.json
 
 # modelos treinados sobem junto com o repo
 !src/models/saved/*.pkl

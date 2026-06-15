@@ -7,12 +7,14 @@ from fastapi.middleware.cors import CORSMiddleware
 load_dotenv()
 
 from api.routes.admin import router as admin_router
+from api.routes.player_metrics import load_player_metrics, router as player_metrics_router
 from api.routes.predict import load_models, router as predict_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     load_models()
+    load_player_metrics()
     yield
 
 
@@ -30,6 +32,7 @@ app.add_middleware(
 )
 
 app.include_router(predict_router)
+app.include_router(player_metrics_router)
 app.include_router(admin_router)
 
 

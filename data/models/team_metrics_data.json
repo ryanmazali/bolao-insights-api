@@ -1,0 +1,962 @@
+{
+  "Albania": {
+    "shots_p90": 9.98237901229789,
+    "sot_p90": 4.042429942040436,
+    "xg_p90": 0.6773061497840565,
+    "shots_conceded_p90": 16.86969650360798,
+    "xg_conceded_p90": 1.3284610244911361,
+    "tackles_p90": 10.356762050285967,
+    "fouls_p90": 9.673578365084472,
+    "interceptions_p90": 12.86353561459456,
+    "n_games": 3,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 1.4578289942914606
+  },
+  "Algeria": {
+    "shots_p90": 14.181910889053862,
+    "sot_p90": 3.9082742271182984,
+    "xg_p90": 1.168618817687921,
+    "shots_conceded_p90": 9.269668467907374,
+    "xg_conceded_p90": 1.1410704612278908,
+    "tackles_p90": 14.510376249878112,
+    "fouls_p90": 12.355442110696854,
+    "interceptions_p90": 6.933300587191442,
+    "n_games": 3,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 0.801057177116048
+  },
+  "Angola": {
+    "shots_p90": 10.071850814470945,
+    "sot_p90": 3.3529409795236305,
+    "xg_p90": 1.2434136149589414,
+    "shots_conceded_p90": 13.93316130515296,
+    "xg_conceded_p90": 0.9548470577343473,
+    "tackles_p90": 13.755221481594878,
+    "fouls_p90": 15.806431531129368,
+    "interceptions_p90": 9.658594026297852,
+    "n_games": 5,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 1.2040623569278561
+  },
+  "Argentina": {
+    "shots_p90": 12.981882465084775,
+    "sot_p90": 5.262845182443321,
+    "xg_p90": 2.304946434715237,
+    "shots_conceded_p90": 8.431960990664324,
+    "xg_conceded_p90": 0.9666036306432458,
+    "tackles_p90": 15.532895962562215,
+    "fouls_p90": 10.694084568982483,
+    "interceptions_p90": 7.405559133851355,
+    "n_games": 6,
+    "tournaments": [
+      "Copa America 2024"
+    ],
+    "defensive_factor": 0.7286649886259656
+  },
+  "Austria": {
+    "shots_p90": 11.785262047188358,
+    "sot_p90": 5.178389662602655,
+    "xg_p90": 1.440125236387733,
+    "shots_conceded_p90": 10.737456034068106,
+    "xg_conceded_p90": 1.3353881308028197,
+    "tackles_p90": 16.7304603824889,
+    "fouls_p90": 15.837814378557185,
+    "interceptions_p90": 10.588491628893047,
+    "n_games": 4,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 0.927899012768039
+  },
+  "Belgium": {
+    "shots_p90": 12.53886027370432,
+    "sot_p90": 4.741903028531107,
+    "xg_p90": 1.0351189255591486,
+    "shots_conceded_p90": 13.585409111555087,
+    "xg_conceded_p90": 0.9359394679430995,
+    "tackles_p90": 13.569811943449807,
+    "fouls_p90": 11.123843632089425,
+    "interceptions_p90": 4.535181494445057,
+    "n_games": 4,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 1.1740106467179532
+  },
+  "Bolivia": {
+    "shots_p90": 5.4280972331528,
+    "sot_p90": 2.2326835544768064,
+    "xg_p90": 0.3161896964360465,
+    "shots_conceded_p90": 16.31602490977914,
+    "xg_conceded_p90": 1.9416185389160763,
+    "tackles_p90": 17.28729772604806,
+    "fouls_p90": 19.81539208977496,
+    "interceptions_p90": 10.242314920019327,
+    "n_games": 3,
+    "tournaments": [
+      "Copa America 2024"
+    ],
+    "defensive_factor": 1.40998234200423
+  },
+  "Brazil": {
+    "shots_p90": 12.442373803578313,
+    "sot_p90": 3.929593939606579,
+    "xg_p90": 2.034867871526671,
+    "shots_conceded_p90": 10.175693719516643,
+    "xg_conceded_p90": 1.3337087884383272,
+    "tackles_p90": 20.66349572160453,
+    "fouls_p90": 13.070176157322228,
+    "interceptions_p90": 8.78381766211297,
+    "n_games": 4,
+    "tournaments": [
+      "Copa America 2024"
+    ],
+    "defensive_factor": 0.8793531844611544
+  },
+  "Burkina Faso": {
+    "shots_p90": 10.497525923671253,
+    "sot_p90": 3.4144047534244835,
+    "xg_p90": 1.1042002574271377,
+    "shots_conceded_p90": 10.008143393050377,
+    "xg_conceded_p90": 0.9252486590592255,
+    "tackles_p90": 13.218516652180572,
+    "fouls_p90": 15.242781289386965,
+    "interceptions_p90": 7.972283144153536,
+    "n_games": 4,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 0.8648739836128593
+  },
+  "Cameroon": {
+    "shots_p90": 8.457964672833768,
+    "sot_p90": 1.3713852991562185,
+    "xg_p90": 0.6375301479231235,
+    "shots_conceded_p90": 7.722508776452489,
+    "xg_conceded_p90": 1.034724150438289,
+    "tackles_p90": 10.934458895851034,
+    "fouls_p90": 12.782642815214608,
+    "interceptions_p90": 7.255637248122521,
+    "n_games": 4,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 0.6673562384821151
+  },
+  "Canada": {
+    "shots_p90": 9.9784517631768,
+    "sot_p90": 3.6300518751942525,
+    "xg_p90": 1.9511614000488227,
+    "shots_conceded_p90": 11.712442099107838,
+    "xg_conceded_p90": 2.19904960588004,
+    "tackles_p90": 15.60919861917426,
+    "fouls_p90": 12.536674518690754,
+    "interceptions_p90": 7.390817870216085,
+    "n_games": 6,
+    "tournaments": [
+      "Copa America 2024"
+    ],
+    "defensive_factor": 1.0121544084914338
+  },
+  "Cape Verde Islands": {
+    "shots_p90": 13.30375311163005,
+    "sot_p90": 3.9427804863677833,
+    "xg_p90": 1.7221618710938764,
+    "shots_conceded_p90": 13.041471136189037,
+    "xg_conceded_p90": 1.366653374707683,
+    "tackles_p90": 15.774324296704162,
+    "fouls_p90": 13.426455453783742,
+    "interceptions_p90": 8.551043389128477,
+    "n_games": 5,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 1.1270051447864142
+  },
+  "Chile": {
+    "shots_p90": 6.8748304781068965,
+    "sot_p90": 2.4919638429097724,
+    "xg_p90": 0.503835667879078,
+    "shots_conceded_p90": 11.880883279752721,
+    "xg_conceded_p90": 1.3019865871674112,
+    "tackles_p90": 16.54285116069125,
+    "fouls_p90": 12.840258779709934,
+    "interceptions_p90": 6.559800706914447,
+    "n_games": 3,
+    "tournaments": [
+      "Copa America 2024"
+    ],
+    "defensive_factor": 1.0267105943080712
+  },
+  "Colombia": {
+    "shots_p90": 11.779944195766959,
+    "sot_p90": 3.961258925259596,
+    "xg_p90": 1.4496101418654253,
+    "shots_conceded_p90": 8.858116748539794,
+    "xg_conceded_p90": 0.5465358354979646,
+    "tackles_p90": 19.103686982781596,
+    "fouls_p90": 15.215347073472378,
+    "interceptions_p90": 6.314625843753603,
+    "n_games": 6,
+    "tournaments": [
+      "Copa America 2024"
+    ],
+    "defensive_factor": 0.765492101655666
+  },
+  "Congo DR": {
+    "shots_p90": 12.939169890775116,
+    "sot_p90": 3.9819834689649016,
+    "xg_p90": 2.6072127593654773,
+    "shots_conceded_p90": 8.40931163006626,
+    "xg_conceded_p90": 1.7921760452760735,
+    "tackles_p90": 12.683629064256099,
+    "fouls_p90": 12.761112636970859,
+    "interceptions_p90": 5.553947216858546,
+    "n_games": 7,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 0.7267076982517754
+  },
+  "Costa Rica": {
+    "shots_p90": 2.8861371009107164,
+    "sot_p90": 0.6245662734212353,
+    "xg_p90": 0.15045055420865638,
+    "shots_conceded_p90": 17.48973899027966,
+    "xg_conceded_p90": 1.9077106597272255,
+    "tackles_p90": 17.198493721731733,
+    "fouls_p90": 15.30113642446758,
+    "interceptions_p90": 6.299549459672797,
+    "n_games": 3,
+    "tournaments": [
+      "Copa America 2024"
+    ],
+    "defensive_factor": 1.5114112217233073
+  },
+  "Croatia": {
+    "shots_p90": 13.291579973610842,
+    "sot_p90": 5.237351140718366,
+    "xg_p90": 1.8011517106294583,
+    "shots_conceded_p90": 11.693019454556335,
+    "xg_conceded_p90": 1.1986709591584916,
+    "tackles_p90": 12.67682604480737,
+    "fouls_p90": 15.965763967405541,
+    "interceptions_p90": 10.17204484310877,
+    "n_games": 3,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 1.010475961320381
+  },
+  "Czech Republic": {
+    "shots_p90": 13.798989363121962,
+    "sot_p90": 5.638023544706748,
+    "xg_p90": 1.4386092552297736,
+    "shots_conceded_p90": 13.139855563927346,
+    "xg_conceded_p90": 1.328447746075799,
+    "tackles_p90": 16.956771415406376,
+    "fouls_p90": 14.712279349835038,
+    "interceptions_p90": 8.166935578631692,
+    "n_games": 3,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 1.1355072343950212
+  },
+  "Côte d'Ivoire": {
+    "shots_p90": 12.824809365317492,
+    "sot_p90": 3.601472351677176,
+    "xg_p90": 1.339101637366738,
+    "shots_conceded_p90": 8.667501526668694,
+    "xg_conceded_p90": 1.223489812469148,
+    "tackles_p90": 14.39954532289055,
+    "fouls_p90": 14.94670744944972,
+    "interceptions_p90": 6.05086356747479,
+    "n_games": 7,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 0.7490197011511543
+  },
+  "Denmark": {
+    "shots_p90": 12.421987940249902,
+    "sot_p90": 3.831241164438009,
+    "xg_p90": 0.9226118348757795,
+    "shots_conceded_p90": 10.262289221839376,
+    "xg_conceded_p90": 1.1182714972084158,
+    "tackles_p90": 12.166080649389162,
+    "fouls_p90": 13.106194640038026,
+    "interceptions_p90": 6.443854577321778,
+    "n_games": 4,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 0.8868365102005544
+  },
+  "Ecuador": {
+    "shots_p90": 11.850183171685206,
+    "sot_p90": 3.388204308988399,
+    "xg_p90": 1.5965918883406562,
+    "shots_conceded_p90": 11.774855758767245,
+    "xg_conceded_p90": 1.6501511263172763,
+    "tackles_p90": 18.06717404717486,
+    "fouls_p90": 12.619347860550048,
+    "interceptions_p90": 6.826465845627819,
+    "n_games": 4,
+    "tournaments": [
+      "Copa America 2024"
+    ],
+    "defensive_factor": 1.0175480113148079
+  },
+  "Egypt": {
+    "shots_p90": 16.720964005905348,
+    "sot_p90": 5.6500731359345995,
+    "xg_p90": 2.506029511204288,
+    "shots_conceded_p90": 7.558699807630691,
+    "xg_conceded_p90": 1.7945300943108404,
+    "tackles_p90": 14.107660662856862,
+    "fouls_p90": 10.842893419586566,
+    "interceptions_p90": 9.370720656884007,
+    "n_games": 4,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 0.6532003546330887
+  },
+  "England": {
+    "shots_p90": 9.946819093523462,
+    "sot_p90": 3.3434507434355645,
+    "xg_p90": 1.226645721373987,
+    "shots_conceded_p90": 9.70891446411272,
+    "xg_conceded_p90": 1.0606951890868679,
+    "tackles_p90": 10.107351915147111,
+    "fouls_p90": 9.12143164455087,
+    "interceptions_p90": 4.81045078902808,
+    "n_games": 7,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 0.8390155096063591
+  },
+  "Equatorial Guinea": {
+    "shots_p90": 7.178930554454634,
+    "sot_p90": 3.229992981751333,
+    "xg_p90": 0.959172622450695,
+    "shots_conceded_p90": 14.608045203794916,
+    "xg_conceded_p90": 1.4744358755823688,
+    "tackles_p90": 14.814689500789797,
+    "fouls_p90": 14.351131551370875,
+    "interceptions_p90": 2.7779863330013823,
+    "n_games": 4,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 1.2623838160608214
+  },
+  "France": {
+    "shots_p90": 14.900025562707725,
+    "sot_p90": 4.161709386003813,
+    "xg_p90": 1.7029735350613022,
+    "shots_conceded_p90": 7.740545908661301,
+    "xg_conceded_p90": 1.0756913129512118,
+    "tackles_p90": 14.240947915747716,
+    "fouls_p90": 11.129405213217664,
+    "interceptions_p90": 7.101353572362005,
+    "n_games": 6,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 0.668914953797607
+  },
+  "Gambia": {
+    "shots_p90": 10.387333396470384,
+    "sot_p90": 2.7239505247376314,
+    "xg_p90": 0.7816580275678047,
+    "shots_conceded_p90": 13.163524739158694,
+    "xg_conceded_p90": 1.693001699241286,
+    "tackles_p90": 10.39894246712609,
+    "fouls_p90": 14.367688719954847,
+    "interceptions_p90": 6.732728261442381,
+    "n_games": 3,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 1.1375526541164636
+  },
+  "Georgia": {
+    "shots_p90": 7.046478807899107,
+    "sot_p90": 1.8745810439270367,
+    "xg_p90": 0.9914069548812873,
+    "shots_conceded_p90": 25.175325327478895,
+    "xg_conceded_p90": 2.4629171201662348,
+    "tackles_p90": 18.716234245271224,
+    "fouls_p90": 9.949348778714171,
+    "interceptions_p90": 6.901727176849691,
+    "n_games": 4,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 2.175576732827971
+  },
+  "Germany": {
+    "shots_p90": 17.090172783789818,
+    "sot_p90": 6.268720333847925,
+    "xg_p90": 1.5910449634154815,
+    "shots_conceded_p90": 7.692499570502761,
+    "xg_conceded_p90": 0.7251089551120071,
+    "tackles_p90": 12.495295856503315,
+    "fouls_p90": 12.741950901823772,
+    "interceptions_p90": 6.7929890449456085,
+    "n_games": 5,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 0.6647629321639
+  },
+  "Ghana": {
+    "shots_p90": 7.678823505912988,
+    "sot_p90": 2.4776094664736426,
+    "xg_p90": 1.1419224400805648,
+    "shots_conceded_p90": 12.306247938002947,
+    "xg_conceded_p90": 1.6754573066098235,
+    "tackles_p90": 13.500975493265827,
+    "fouls_p90": 21.62091962651183,
+    "interceptions_p90": 10.742790745299729,
+    "n_games": 3,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 1.06346934286122
+  },
+  "Guinea": {
+    "shots_p90": 7.983753163307429,
+    "sot_p90": 2.787392711974877,
+    "xg_p90": 1.0019534819152274,
+    "shots_conceded_p90": 9.352319254136699,
+    "xg_conceded_p90": 0.8779258536918861,
+    "tackles_p90": 14.148983085900975,
+    "fouls_p90": 15.122826001199295,
+    "interceptions_p90": 6.137294279632175,
+    "n_games": 5,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 0.808199612223895
+  },
+  "Guinea-Bissau": {
+    "shots_p90": 10.671820430655812,
+    "sot_p90": 3.460073588111866,
+    "xg_p90": 0.5973141531242879,
+    "shots_conceded_p90": 9.135610219848106,
+    "xg_conceded_p90": 1.0766295759030704,
+    "tackles_p90": 14.478470329825777,
+    "fouls_p90": 12.911141221209183,
+    "interceptions_p90": 10.14753957442334,
+    "n_games": 3,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 0.7894722620642022
+  },
+  "Hungary": {
+    "shots_p90": 9.545030049762394,
+    "sot_p90": 2.7434163255446653,
+    "xg_p90": 1.0331310283054072,
+    "shots_conceded_p90": 11.944933728776634,
+    "xg_conceded_p90": 1.1805320050683046,
+    "tackles_p90": 14.749217273913246,
+    "fouls_p90": 13.359555300759277,
+    "interceptions_p90": 7.44736112374175,
+    "n_games": 3,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 1.0322456435998282
+  },
+  "Italy": {
+    "shots_p90": 10.607268224551198,
+    "sot_p90": 2.107808781309463,
+    "xg_p90": 0.7783392191530857,
+    "shots_conceded_p90": 11.854621672879494,
+    "xg_conceded_p90": 0.9715542053537223,
+    "tackles_p90": 12.70892172549815,
+    "fouls_p90": 11.837266149853281,
+    "interceptions_p90": 6.394057793344771,
+    "n_games": 4,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 1.0244411443551165
+  },
+  "Jamaica": {
+    "shots_p90": 8.97880832241045,
+    "sot_p90": 2.8643648747800508,
+    "xg_p90": 0.6720877101908401,
+    "shots_conceded_p90": 19.157590751541132,
+    "xg_conceded_p90": 1.6623132657597257,
+    "tackles_p90": 15.022150310812295,
+    "fouls_p90": 10.4658123446777,
+    "interceptions_p90": 8.335976134218996,
+    "n_games": 3,
+    "tournaments": [
+      "Copa America 2024"
+    ],
+    "defensive_factor": 1.6555420100411076
+  },
+  "Mali": {
+    "shots_p90": 11.506960773986979,
+    "sot_p90": 3.021288690570696,
+    "xg_p90": 1.0458680504489928,
+    "shots_conceded_p90": 7.21960019957572,
+    "xg_conceded_p90": 0.8754322181826545,
+    "tackles_p90": 16.906984325910933,
+    "fouls_p90": 15.88091819965415,
+    "interceptions_p90": 9.074775672959857,
+    "n_games": 5,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 0.6238963751293863
+  },
+  "Mauritania": {
+    "shots_p90": 11.532048068664897,
+    "sot_p90": 3.6181686420577517,
+    "xg_p90": 0.8439670072866279,
+    "shots_conceded_p90": 14.74383382915063,
+    "xg_conceded_p90": 1.3506687376338569,
+    "tackles_p90": 23.528341757344965,
+    "fouls_p90": 13.54131971119,
+    "interceptions_p90": 11.330940458267898,
+    "n_games": 4,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 1.2741182651717584
+  },
+  "Mexico": {
+    "shots_p90": 18.029954511834756,
+    "sot_p90": 5.650105627146709,
+    "xg_p90": 1.3837594995684064,
+    "shots_conceded_p90": 9.989017716720289,
+    "xg_conceded_p90": 0.6062655859623388,
+    "tackles_p90": 15.771889995705722,
+    "fouls_p90": 12.637841278094582,
+    "interceptions_p90": 7.212993032807334,
+    "n_games": 3,
+    "tournaments": [
+      "Copa America 2024"
+    ],
+    "defensive_factor": 0.8632211995521933
+  },
+  "Morocco": {
+    "shots_p90": 13.366472376810911,
+    "sot_p90": 4.644042820561103,
+    "xg_p90": 1.8109365597481348,
+    "shots_conceded_p90": 6.670492631021063,
+    "xg_conceded_p90": 0.684872225429829,
+    "tackles_p90": 12.582239458168843,
+    "fouls_p90": 14.022791507149941,
+    "interceptions_p90": 4.8458164963546775,
+    "n_games": 4,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 0.5764441323310255
+  },
+  "Mozambique": {
+    "shots_p90": 8.672582470533094,
+    "sot_p90": 2.47232705288267,
+    "xg_p90": 0.8007384161914053,
+    "shots_conceded_p90": 12.488126011278993,
+    "xg_conceded_p90": 1.3359416991386925,
+    "tackles_p90": 11.72796660542125,
+    "fouls_p90": 10.523343634792315,
+    "interceptions_p90": 9.225199244482184,
+    "n_games": 3,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 1.07918670497209
+  },
+  "Namibia": {
+    "shots_p90": 8.031813982333924,
+    "sot_p90": 2.1214089271900822,
+    "xg_p90": 0.8754918318751704,
+    "shots_conceded_p90": 10.201600819159491,
+    "xg_conceded_p90": 1.2704553455175214,
+    "tackles_p90": 15.654356133758679,
+    "fouls_p90": 14.22216757353441,
+    "interceptions_p90": 10.871198504687877,
+    "n_games": 4,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 0.8815919989537131
+  },
+  "Netherlands": {
+    "shots_p90": 13.075173154261217,
+    "sot_p90": 3.623525227069191,
+    "xg_p90": 1.1522752664520433,
+    "shots_conceded_p90": 10.205781123962973,
+    "xg_conceded_p90": 0.9213242511889383,
+    "tackles_p90": 13.344398529360374,
+    "fouls_p90": 11.614443255469203,
+    "interceptions_p90": 8.338333328413155,
+    "n_games": 6,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 0.8819532484608508
+  },
+  "Nigeria": {
+    "shots_p90": 10.773087186410246,
+    "sot_p90": 3.1179992866656745,
+    "xg_p90": 1.6353263686093507,
+    "shots_conceded_p90": 10.792215958656355,
+    "xg_conceded_p90": 1.0157006665703459,
+    "tackles_p90": 14.634842852914067,
+    "fouls_p90": 16.580724933864946,
+    "interceptions_p90": 6.496313969254169,
+    "n_games": 7,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 0.9326312025719806
+  },
+  "Panama": {
+    "shots_p90": 11.902611571326755,
+    "sot_p90": 3.572732820038095,
+    "xg_p90": 0.7673095245331601,
+    "shots_conceded_p90": 9.505904217889773,
+    "xg_conceded_p90": 1.2482062037380577,
+    "tackles_p90": 13.080697843308831,
+    "fouls_p90": 15.471589789843485,
+    "interceptions_p90": 7.133684724305773,
+    "n_games": 4,
+    "tournaments": [
+      "Copa America 2024"
+    ],
+    "defensive_factor": 0.8214719679653602
+  },
+  "Paraguay": {
+    "shots_p90": 13.540257751328504,
+    "sot_p90": 4.734473986639261,
+    "xg_p90": 0.9280845446915237,
+    "shots_conceded_p90": 9.501171990991821,
+    "xg_conceded_p90": 1.4857095711219033,
+    "tackles_p90": 18.647539319109054,
+    "fouls_p90": 16.961292927874528,
+    "interceptions_p90": 12.294977909394047,
+    "n_games": 3,
+    "tournaments": [
+      "Copa America 2024"
+    ],
+    "defensive_factor": 0.821063022992466
+  },
+  "Peru": {
+    "shots_p90": 7.215454402413612,
+    "sot_p90": 2.8136866003290586,
+    "xg_p90": 0.4443750628680359,
+    "shots_conceded_p90": 8.830551691708914,
+    "xg_conceded_p90": 1.2745222900665707,
+    "tackles_p90": 20.992483197378792,
+    "fouls_p90": 20.75822765898144,
+    "interceptions_p90": 9.409515134162744,
+    "n_games": 3,
+    "tournaments": [
+      "Copa America 2024"
+    ],
+    "defensive_factor": 0.7631100114343775
+  },
+  "Poland": {
+    "shots_p90": 11.732165645499528,
+    "sot_p90": 4.114233900758973,
+    "xg_p90": 1.1181821235445197,
+    "shots_conceded_p90": 17.414382411546526,
+    "xg_conceded_p90": 1.5928980593171491,
+    "tackles_p90": 13.61235699306701,
+    "fouls_p90": 14.257595319298195,
+    "interceptions_p90": 7.277961446898065,
+    "n_games": 3,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 1.5048991303312498
+  },
+  "Portugal": {
+    "shots_p90": 16.098522871416527,
+    "sot_p90": 5.188792241938284,
+    "xg_p90": 2.3910960564811843,
+    "shots_conceded_p90": 9.787645910699842,
+    "xg_conceded_p90": 1.6137038370351877,
+    "tackles_p90": 14.519143479330785,
+    "fouls_p90": 7.469898258705468,
+    "interceptions_p90": 5.767660624398339,
+    "n_games": 5,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 0.8458192470400864
+  },
+  "Romania": {
+    "shots_p90": 9.08778049511419,
+    "sot_p90": 3.5873751979334147,
+    "xg_p90": 0.8984769933234831,
+    "shots_conceded_p90": 16.733890175640525,
+    "xg_conceded_p90": 1.3527983321638346,
+    "tackles_p90": 12.914264283460923,
+    "fouls_p90": 11.71593213719002,
+    "interceptions_p90": 7.410471773695322,
+    "n_games": 4,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 1.446093015373472
+  },
+  "Scotland": {
+    "shots_p90": 5.33317666251623,
+    "sot_p90": 0.957107408720312,
+    "xg_p90": 0.3199921888731678,
+    "shots_conceded_p90": 14.061646442578391,
+    "xg_conceded_p90": 1.2032089246943432,
+    "tackles_p90": 10.31450753026642,
+    "fouls_p90": 11.768162037382941,
+    "interceptions_p90": 5.591244423496043,
+    "n_games": 3,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 1.2151656603354932
+  },
+  "Senegal": {
+    "shots_p90": 10.361503753977164,
+    "sot_p90": 3.9502901568547113,
+    "xg_p90": 1.8143372188190257,
+    "shots_conceded_p90": 7.1510357262421875,
+    "xg_conceded_p90": 1.2963566481129614,
+    "tackles_p90": 15.581425553869133,
+    "fouls_p90": 15.515532930242378,
+    "interceptions_p90": 7.436663423418656,
+    "n_games": 4,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 0.6179712372833931
+  },
+  "Serbia": {
+    "shots_p90": 8.159637138756375,
+    "sot_p90": 1.8792584804818004,
+    "xg_p90": 0.6366593454471622,
+    "shots_conceded_p90": 8.484936317549602,
+    "xg_conceded_p90": 0.8353150395404679,
+    "tackles_p90": 13.5533823775431,
+    "fouls_p90": 13.943907945077086,
+    "interceptions_p90": 5.679277937310452,
+    "n_games": 3,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 0.7332429588045583
+  },
+  "Slovakia": {
+    "shots_p90": 11.122481217895611,
+    "sot_p90": 3.6122061887077415,
+    "xg_p90": 0.8286583486457736,
+    "shots_conceded_p90": 11.864795776750054,
+    "xg_conceded_p90": 1.3735291568682193,
+    "tackles_p90": 10.85336760951001,
+    "fouls_p90": 11.50188849739501,
+    "interceptions_p90": 8.595583712031646,
+    "n_games": 4,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 1.0253203601495597
+  },
+  "Slovenia": {
+    "shots_p90": 8.736223915768578,
+    "sot_p90": 2.555517645031631,
+    "xg_p90": 1.1875580733561104,
+    "shots_conceded_p90": 14.355134602285354,
+    "xg_conceded_p90": 1.6200081537555935,
+    "tackles_p90": 20.197555705578015,
+    "fouls_p90": 12.565231124620992,
+    "interceptions_p90": 8.229271716028546,
+    "n_games": 4,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 1.2405280341405316
+  },
+  "South Africa": {
+    "shots_p90": 10.47277018693397,
+    "sot_p90": 5.105204290909614,
+    "xg_p90": 2.0684669656306847,
+    "shots_conceded_p90": 12.716171389422247,
+    "xg_conceded_p90": 2.5831088020414623,
+    "tackles_p90": 12.044742448005579,
+    "fouls_p90": 11.68800098188177,
+    "interceptions_p90": 7.87426107692344,
+    "n_games": 7,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 1.0988937082486632
+  },
+  "Spain": {
+    "shots_p90": 16.113857805069816,
+    "sot_p90": 5.65427968366983,
+    "xg_p90": 1.3871758134381447,
+    "shots_conceded_p90": 9.403528997932066,
+    "xg_conceded_p90": 0.819229852233148,
+    "tackles_p90": 13.459750820789083,
+    "fouls_p90": 13.401504157337815,
+    "interceptions_p90": 6.1789397854658334,
+    "n_games": 7,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 0.812625005963442
+  },
+  "Switzerland": {
+    "shots_p90": 11.047017782180998,
+    "sot_p90": 4.406900381016993,
+    "xg_p90": 1.397923808288215,
+    "shots_conceded_p90": 11.553611877773616,
+    "xg_conceded_p90": 1.4192153281416338,
+    "tackles_p90": 11.70103289722763,
+    "fouls_p90": 12.039651606590223,
+    "interceptions_p90": 7.116476157906616,
+    "n_games": 5,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 0.9984287731914012
+  },
+  "Tanzania": {
+    "shots_p90": 3.750306182457553,
+    "sot_p90": 0.6167551824567414,
+    "xg_p90": 0.1427786667893248,
+    "shots_conceded_p90": 10.94508052038781,
+    "xg_conceded_p90": 1.1741103636056638,
+    "tackles_p90": 14.162146267729716,
+    "fouls_p90": 9.364809156537808,
+    "interceptions_p90": 5.928781975818917,
+    "n_games": 3,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 0.945841303313515
+  },
+  "Tunisia": {
+    "shots_p90": 7.807980649431916,
+    "sot_p90": 1.8732886084750267,
+    "xg_p90": 0.7548910299971583,
+    "shots_conceded_p90": 11.198877602189738,
+    "xg_conceded_p90": 0.925629724317623,
+    "tackles_p90": 15.955644474640664,
+    "fouls_p90": 11.195514099791184,
+    "interceptions_p90": 6.8681779486901915,
+    "n_games": 3,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 0.9677736922239071
+  },
+  "Turkey": {
+    "shots_p90": 13.42173600967159,
+    "sot_p90": 3.915449141971245,
+    "xg_p90": 1.204816900134424,
+    "shots_conceded_p90": 13.116931532215267,
+    "xg_conceded_p90": 1.5182686882247824,
+    "tackles_p90": 18.72880801476247,
+    "fouls_p90": 9.927932407748361,
+    "interceptions_p90": 8.458033876953934,
+    "n_games": 5,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 1.1335262077601451
+  },
+  "Ukraine": {
+    "shots_p90": 12.712226036833757,
+    "sot_p90": 3.8091213071291867,
+    "xg_p90": 0.945279324770638,
+    "shots_conceded_p90": 11.431497106770232,
+    "xg_conceded_p90": 0.795163223369924,
+    "tackles_p90": 16.844629465515826,
+    "fouls_p90": 11.427363921387558,
+    "interceptions_p90": 8.894838358939225,
+    "n_games": 3,
+    "tournaments": [
+      "UEFA Euro 2024"
+    ],
+    "defensive_factor": 0.9878759779018167
+  },
+  "United States": {
+    "shots_p90": 10.790072710002258,
+    "sot_p90": 3.814171765976239,
+    "xg_p90": 1.205800071731615,
+    "shots_conceded_p90": 9.804619233283793,
+    "xg_conceded_p90": 0.6774681243123961,
+    "tackles_p90": 12.044829118271828,
+    "fouls_p90": 9.16615173124257,
+    "interceptions_p90": 5.721596988588085,
+    "n_games": 3,
+    "tournaments": [
+      "Copa America 2024"
+    ],
+    "defensive_factor": 0.8472860310920136
+  },
+  "Uruguay": {
+    "shots_p90": 13.521962435827561,
+    "sot_p90": 5.413732221511239,
+    "xg_p90": 1.9878001419447549,
+    "shots_conceded_p90": 8.70876055953831,
+    "xg_conceded_p90": 1.5284700429209146,
+    "tackles_p90": 19.515495833002934,
+    "fouls_p90": 14.777378454411563,
+    "interceptions_p90": 7.657222588669719,
+    "n_games": 6,
+    "tournaments": [
+      "Copa America 2024"
+    ],
+    "defensive_factor": 0.7525851840500842
+  },
+  "Venezuela": {
+    "shots_p90": 13.413142846263185,
+    "sot_p90": 3.5920842605961654,
+    "xg_p90": 2.03266236398174,
+    "shots_conceded_p90": 12.058808849265432,
+    "xg_conceded_p90": 1.938895173742094,
+    "tackles_p90": 19.130053108133424,
+    "fouls_p90": 11.344719251238962,
+    "interceptions_p90": 8.544993257619414,
+    "n_games": 4,
+    "tournaments": [
+      "Copa America 2024"
+    ],
+    "defensive_factor": 1.0420863928001174
+  },
+  "Zambia": {
+    "shots_p90": 7.7991970221841695,
+    "sot_p90": 2.1767625157221606,
+    "xg_p90": 0.41474234536861704,
+    "shots_conceded_p90": 16.277064155482126,
+    "xg_conceded_p90": 1.7220274285650754,
+    "tackles_p90": 12.805954477965118,
+    "fouls_p90": 12.765755990636103,
+    "interceptions_p90": 4.06950699521743,
+    "n_games": 3,
+    "tournaments": [
+      "African Cup of Nations 2023"
+    ],
+    "defensive_factor": 1.4066154695035
+  }
+}
