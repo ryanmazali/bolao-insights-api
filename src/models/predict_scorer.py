@@ -93,6 +93,14 @@ def get_fm23_attributes(supabase_id: str) -> dict:
     row = fm23_df.loc[supabase_id]
     return {col: float(row[col]) for col in FM23_ATTRS}
 
+def get_team_coverage(df: pd.DataFrame, team_name_csv: str) -> float:
+    """team_coverage da seleção (constante entre as linhas); 0.5 (neutro)
+    se a seleção não tiver nenhuma linha em scorer_features_v1.csv."""
+    rows = df[df['team'] == team_name_csv]
+    if len(rows) == 0:
+        return 0.5
+    return float(rows['team_coverage'].iloc[0])
+
 def get_convocados(team_name_en: str) -> list:
     """Busca jogadores convocados do Supabase pelo nome da seleção em inglês."""
 
@@ -190,6 +198,8 @@ def predict_scorers(home_team: str,
             results[team_en] = []
             continue
 
+        team_coverage = get_team_coverage(df, team_en)
+
         team_results = []
 
         for player in convocados:
@@ -224,27 +234,64 @@ def predict_scorers(home_team: str,
             }
 
             if len(player_history) == 0:
-                # Sem histórico — o modelo nunca viu n_matches=0 no treino
-                # (essas linhas são removidas por correlação espúria com o
-                # gol de estreia, ver train_scorer.py), então alimentá-lo
-                # com esse vetor sintético gera extrapolação errática (ex:
-                # goleiros reserva e zagueiros "sem histórico" previstos a
-                # 15-20%, acima de atacantes titulares). Em vez disso, usa
-                # diretamente o baseline por posição, ajustado pela força
-                # do adversário.
                 opp_tier_multiplier = (
                     0.7 if opp_elo >= 1900 else
                     0.85 if opp_elo >= 1800 else
                     1.0 if opp_elo >= 1700 else
                     1.25
                 )
-                prob = POSITION_BASELINE.get(position, 0.05) * opp_tier_multiplier
 
-                if position == 'GK':
-                    prob = min(prob, 0.005)
+                if position == 'FW':
+                    # Sem histórico, mas atacante — monta um vetor sintético
+                    # (n_matches=0, forma recente = baseline da posição,
+                    # contexto da partida atual) e usa o modelo. Com a
+                    # regularização atual (ver train_scorer.py), o modelo dá
+                    # mais peso a Fin/OtB/Pac/Ant, então a probabilidade
+                    # diferencia atacantes sem histórico pela qualidade FM23
+                    # (ex: Gyökeres Fin=17 > atacante mediano Fin=12). Para
+                    # outras posições o modelo extrapola de forma errática
+                    # fora da posição FW (GK/DF "sem histórico" previstos a
+                    # 9-11%, acima do baseline real), então mantém o
+                    # baseline puro por posição.
+                    fw_baseline = POSITION_BASELINE['FW']
+                    no_history_features = {
+                        'n_matches': 0,
+                        'scoring_rate': fw_baseline,
+                        'scoring_rate_recent10': fw_baseline,
+                        'scoring_rate_recent5': fw_baseline,
+                        'scoring_rate_last_12m': fw_baseline,
+                        'scoring_rate_last_24m': fw_baseline,
+                        'sos_scoring_rate': fw_baseline,
+                        'goals_vs_elite': 0.0,
+                        'goals_vs_strong': 0.0,
+                        'goals_vs_mid': fw_baseline,
+                        'goals_vs_weak': fw_baseline * 1.5,
+                        'penalty_rate': 0.0,
+                        'is_penalty_taker': 0,
+                        'avg_goals_per_game': 0.0,
+                        'position_weight': position_weight,
+                        'opp_elo': opp_elo,
+                        'team_elo': team_elo,
+                        'elo_diff': team_elo - opp_elo,
+                        'opp_tier_elite': int(opp_elo >= 1900),
+                        'opp_tier_strong': int(1800 <= opp_elo < 1900),
+                        'opp_tier_mid': int(1700 <= opp_elo < 1800),
+                        'opp_tier_weak': int(opp_elo < 1700),
+                        'opp_goals_conceded_avg': opp_goals_conceded,
+                        'opp_clean_sheet_rate': opp_clean_sheet_rate,
+                        'team_coverage': team_coverage,
+                        'is_neutral': int(is_neutral),
+                    }
+                    no_history_features.update(fm23_attrs)
+                    feature_vector = [no_history_features.get(col, 0.0) for col in SCORER_FEATURES]
+                    prob = float(model_scorer.predict_proba([feature_vector])[0][1])
+                else:
+                    prob = POSITION_BASELINE.get(position, 0.05) * opp_tier_multiplier
+                    if position == 'GK':
+                        prob = min(prob, 0.005)
 
                 # Sem histórico: componentes de forma ficam zerados, o score
-                # composto passa a depender de qualidade FM23 + prob baseline.
+                # composto passa a depender de qualidade FM23 + prob.
                 composite_score = (
                     0.35 * fm23_score +
                     0.30 * 0.0 +
