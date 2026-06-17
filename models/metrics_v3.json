@@ -1,0 +1,11 @@
+{
+  "threshold_draw": 0.34,
+  "rho_dixon_coles": -0.24,
+  "val_accuracy": 0.5881,
+  "val_mae_home": 1.0201,
+  "val_mae_away": 0.8517,
+  "val_over25_accuracy": 0.5826,
+  "val_btts_accuracy": 0.5684,
+  "eafc_real_accuracy": 0.462,
+  "generated_at": "2026-06-17T17:27:12Z"
+}
